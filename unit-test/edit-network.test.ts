@@ -1,23 +1,42 @@
-import assert from 'assert';
-import { describe, it } from 'mocha';
-import { addEdge, addNode, cloneNetwork, getFromMapOfMaps, IEdge, IMakeNetworkResult, INode, IRandomEdge, IRandomNode, randomNetwork, randomNodes, removeEdge, removeNode } from '../lib';
-import { randItem } from '../lib/util/random';
-import { WORDS } from '../test/data/word-list';
+import assert from "assert";
+import { describe, it } from "mocha";
+import {
+  addEdge,
+  addNode,
+  cloneNetwork,
+  getFromMapOfMaps,
+  IEdge,
+  IMakeNetworkResult,
+  INode,
+  IRandomEdge,
+  IRandomNode,
+  randomNetwork,
+  randomNodes,
+  removeEdge,
+  removeNode,
+} from "../lib";
+import { randItem } from "../lib/util/random";
+import { WORDS } from "../test/data/word-list";
 const randomSeed = require("random-seed");
 const rand = randomSeed.create("edit-network");
 
-describe('Edit Network', () => {
-  let network: IMakeNetworkResult<IRandomNode, IRandomEdge, IRandomNode, IRandomEdge>;
+describe("Edit Network", () => {
+  let network: IMakeNetworkResult<
+    IRandomNode,
+    IRandomEdge,
+    IRandomNode,
+    IRandomEdge
+  >;
 
   before(async () => {
     network = await randomNetwork(WORDS, 100, 1000);
   });
 
-  it ('Should not have errors', () => {
+  it("Should not have errors", () => {
     assert(!network.errors || network.errors.length <= 0);
   });
 
-  it ('Should remove node', () => {
+  it("Should remove node", () => {
     const net = cloneNetwork(network);
     const node = randItem(rand, net.nodes);
     const result = removeNode(net, node);
@@ -78,7 +97,7 @@ describe('Edit Network', () => {
     }
   });
 
-  it ('Should remove an edge', () => {
+  it("Should remove an edge", () => {
     const net = cloneNetwork(network);
     const edge = randItem(rand, net.edges);
     const result = removeEdge(net, edge);
@@ -110,7 +129,7 @@ describe('Edit Network', () => {
     }
   });
 
-  it ('Should add a node', () => {
+  it("Should add a node", () => {
     const net = cloneNetwork(network);
     const metas = randomNodes(WORDS, 1);
     const meta = metas[0];
@@ -134,9 +153,15 @@ describe('Edit Network', () => {
     }
   });
 
-  it ('Should add an edge', () => {
+  it("Should add an edge", () => {
     const net = cloneNetwork(network);
-    const edge = { id: 10000, a: randItem(rand, net.nodes), b: randItem(rand, net.nodes), atob: 0, btoa: 10 };
+    const edge = {
+      id: 10000,
+      a: randItem(rand, net.nodes),
+      b: randItem(rand, net.nodes),
+      atob: 0,
+      btoa: 10,
+    };
     const result = addEdge(net, edge);
 
     // No errors should have happened
@@ -153,10 +178,21 @@ describe('Edit Network', () => {
     assert(edge.b.in.indexOf(edge) >= 0);
   });
 
-  it ('Should NOT add an edge', () => {
+  it("Should NOT add an edge", () => {
     const net = cloneNetwork(network);
-    const node: INode<IRandomNode, IRandomEdge> = { id: 1000, in: [], out: [], value: [] };
-    const edge = { id: 10000, a: randItem(rand, net.nodes), b: node, atob: 0, btoa: 10 };
+    const node: INode<IRandomNode, IRandomEdge> = {
+      id: 1000,
+      in: [],
+      out: [],
+      value: [],
+    };
+    const edge = {
+      id: 10000,
+      a: randItem(rand, net.nodes),
+      b: node,
+      atob: 0,
+      btoa: 10,
+    };
     const result = addEdge(net, edge);
 
     // Should have errored and have no successes
@@ -174,12 +210,18 @@ describe('Edit Network', () => {
     }
   });
 
-  it ('Should add a node and its edges', () => {
+  it("Should add a node and its edges", () => {
     const net = cloneNetwork(network);
     const metas = randomNodes(WORDS, 1);
     const meta = metas[0];
     meta.UID = 1000;
-    const node: INode<IRandomNode, IRandomEdge> = { id: 1000, in: [], out: [], value: [], meta };
+    const node: INode<IRandomNode, IRandomEdge> = {
+      id: 1000,
+      in: [],
+      out: [],
+      value: [],
+      meta,
+    };
 
     const edges: IEdge<IRandomNode, IRandomEdge>[] = [
       {

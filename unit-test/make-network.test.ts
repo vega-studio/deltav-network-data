@@ -1,5 +1,5 @@
-import assert from 'assert';
-import { before, describe, it } from 'mocha';
+import assert from "assert";
+import { before, describe, it } from "mocha";
 import {
   cloneNetwork,
   compareEdges,
@@ -12,24 +12,22 @@ import {
   IRandomNode,
   randomEdges,
   randomNetwork,
-  randomNodes
-} from '../lib';
-import { WORDS } from '../test/data/word-list';
+  randomNodes,
+} from "../lib";
+import { WORDS } from "../test/data/word-list";
 
 const nodes = randomNodes(WORDS, 100);
 const edges = randomEdges(WORDS, nodes, 1000);
 type Meta = { name: string };
 type Network = IMakeNetworkResult<IRandomNode, IRandomEdge, Meta, Meta>;
 
-const network: Network = Object.assign(
-  emptyNetwork<Meta, Meta>(),
-  { errors: null }
-);
+const network: Network = Object.assign(emptyNetwork<Meta, Meta>(), {
+  errors: null,
+});
 
-const clone: Network = Object.assign(
-  emptyNetwork<Meta, Meta>(),
-  { errors: null }
-);
+const clone: Network = Object.assign(emptyNetwork<Meta, Meta>(), {
+  errors: null,
+});
 
 const shouldNotHaveErrors = (network: Network) => () => {
   assert(!network.errors || network.errors.length <= 0);
@@ -39,7 +37,7 @@ const shouldHaveARowForEveryNode = (network: Network) => () => {
   let success = true;
   for (let i = 0, iMax = network.nodes.length; i < iMax; ++i) {
     const node = network.nodes[i];
-    if (!nodes.find(row => (row.UID === node.id))) {
+    if (!nodes.find((row) => row.UID === node.id)) {
       success = false;
       break;
     }
@@ -52,7 +50,7 @@ const shouldHaveARowForEveryEdge = (network: Network) => () => {
   let success = true;
   for (let i = 0, iMax = network.edges.length; i < iMax; ++i) {
     const edge = network.edges[i];
-    if (!edges.find(row => (row.UID === edge.id))) {
+    if (!edges.find((row) => row.UID === edge.id)) {
       success = false;
       break;
     }
@@ -104,7 +102,10 @@ const shouldNotHaveAnBtoAForEveryEdge = (network: Network) => () => {
   let success = true;
   for (let i = 0, iMax = network.edges.length; i < iMax; ++i) {
     const edge = network.edges[i];
-    if (getFromMapOfMaps(network.atobMap, edge.b, edge.a) && edge.a !== edge.b) {
+    if (
+      getFromMapOfMaps(network.atobMap, edge.b, edge.a) &&
+      edge.a !== edge.b
+    ) {
       success = false;
       break;
     }
@@ -227,7 +228,9 @@ const shouldShareTheSameEdgeObjectReference = (network: Network) => () => {
   assert(success);
 };
 
-const shouldHaveValidNodeReferencesAndIdentifiers = (network: Network) => () => {
+const shouldHaveValidNodeReferencesAndIdentifiers = (
+  network: Network
+) => () => {
   let success = true;
   for (let i = 0, iMax = network.edges.length; i < iMax; ++i) {
     const edge = network.edges[i];
@@ -246,59 +249,119 @@ const shouldHaveValidNodeReferencesAndIdentifiers = (network: Network) => () => 
   assert(success);
 };
 
-describe('Make Network', () => {
+describe("Make Network", () => {
   before(async () => {
     const net = await randomNetwork(WORDS, 100, 1000);
 
     // Assign the properties to our existing object so we keep the same reference in the tests
-    Object.assign(
-      network,
-      net
-    );
+    Object.assign(network, net);
   });
 
-  it ('Should not have errors', shouldNotHaveErrors(network));
-  it ('Should have a row for every node', shouldHaveARowForEveryNode(network));
-  it ('Should have a row for every edge', shouldHaveARowForEveryEdge(network));
-  it ('Should have a mapping for every node id', shouldHaveAMappingForEveryNodeId(network));
-  it ('Should have a mapping for every edge id', shouldHaveAMappingForEveryEdgeId(network));
-  it ('Should have an a to b for every edge', shouldHaveAnAtoBForEveryEdge(network));
-  it ('Should NOT have an b to a for every edge (Unless a === b)', shouldNotHaveAnBtoAForEveryEdge(network));
-  it ('Should NOT have duplicate node references', shouldNotHaveDuplicateNodeReference(network));
-  it ('Should NOT have duplicate node identifiers', shouldNotHaveDuplicateNodeIdentifiers(network));
-  it ('Should share the same node object reference', shouldShareTheSameNodeObjectReference(network));
-  it ('Should NOT have duplicate edge references', shouldNotHaveDuplicateEdgeReference(network));
-  it ('Should NOT have duplicate edge identifiers', shouldNotHaveDuplicateEdgeIdentifiers(network));
-  it ('Should share the same edge object reference', shouldShareTheSameEdgeObjectReference(network));
-  it ('Should have valid node references and identifiers', shouldHaveValidNodeReferencesAndIdentifiers(network));
+  it("Should not have errors", shouldNotHaveErrors(network));
+  it("Should have a row for every node", shouldHaveARowForEveryNode(network));
+  it("Should have a row for every edge", shouldHaveARowForEveryEdge(network));
+  it(
+    "Should have a mapping for every node id",
+    shouldHaveAMappingForEveryNodeId(network)
+  );
+  it(
+    "Should have a mapping for every edge id",
+    shouldHaveAMappingForEveryEdgeId(network)
+  );
+  it(
+    "Should have an a to b for every edge",
+    shouldHaveAnAtoBForEveryEdge(network)
+  );
+  it(
+    "Should NOT have an b to a for every edge (Unless a === b)",
+    shouldNotHaveAnBtoAForEveryEdge(network)
+  );
+  it(
+    "Should NOT have duplicate node references",
+    shouldNotHaveDuplicateNodeReference(network)
+  );
+  it(
+    "Should NOT have duplicate node identifiers",
+    shouldNotHaveDuplicateNodeIdentifiers(network)
+  );
+  it(
+    "Should share the same node object reference",
+    shouldShareTheSameNodeObjectReference(network)
+  );
+  it(
+    "Should NOT have duplicate edge references",
+    shouldNotHaveDuplicateEdgeReference(network)
+  );
+  it(
+    "Should NOT have duplicate edge identifiers",
+    shouldNotHaveDuplicateEdgeIdentifiers(network)
+  );
+  it(
+    "Should share the same edge object reference",
+    shouldShareTheSameEdgeObjectReference(network)
+  );
+  it(
+    "Should have valid node references and identifiers",
+    shouldHaveValidNodeReferencesAndIdentifiers(network)
+  );
 });
 
-describe('Clone Network', () => {
+describe("Clone Network", () => {
   before(async () => {
     const net = cloneNetwork(network);
     // Assign the properties to our existing object so we keep the same reference in the tests
-    Object.assign(
-      clone,
-      net
-    );
+    Object.assign(clone, net);
   });
 
-  it ('Should not have errors', shouldNotHaveErrors(clone));
-  it ('Should have a row for every node', shouldHaveARowForEveryNode(clone));
-  it ('Should have a row for every edge', shouldHaveARowForEveryEdge(clone));
-  it ('Should have a mapping for every node id', shouldHaveAMappingForEveryNodeId(clone));
-  it ('Should have a mapping for every edge id', shouldHaveAMappingForEveryEdgeId(clone));
-  it ('Should have an a to b for every edge', shouldHaveAnAtoBForEveryEdge(clone));
-  it ('Should NOT have an b to a for every edge (Unless a === b)', shouldNotHaveAnBtoAForEveryEdge(clone));
-  it ('Should NOT have duplicate node references', shouldNotHaveDuplicateNodeReference(clone));
-  it ('Should NOT have duplicate node identifiers', shouldNotHaveDuplicateNodeIdentifiers(clone));
-  it ('Should share the same node object reference', shouldShareTheSameNodeObjectReference(clone));
-  it ('Should NOT have duplicate edge references', shouldNotHaveDuplicateEdgeReference(clone));
-  it ('Should NOT have duplicate edge identifiers', shouldNotHaveDuplicateEdgeIdentifiers(clone));
-  it ('Should share the same edge object reference', shouldShareTheSameEdgeObjectReference(clone));
-  it ('Should have valid node references and identifiers', shouldHaveValidNodeReferencesAndIdentifiers(clone));
+  it("Should not have errors", shouldNotHaveErrors(clone));
+  it("Should have a row for every node", shouldHaveARowForEveryNode(clone));
+  it("Should have a row for every edge", shouldHaveARowForEveryEdge(clone));
+  it(
+    "Should have a mapping for every node id",
+    shouldHaveAMappingForEveryNodeId(clone)
+  );
+  it(
+    "Should have a mapping for every edge id",
+    shouldHaveAMappingForEveryEdgeId(clone)
+  );
+  it(
+    "Should have an a to b for every edge",
+    shouldHaveAnAtoBForEveryEdge(clone)
+  );
+  it(
+    "Should NOT have an b to a for every edge (Unless a === b)",
+    shouldNotHaveAnBtoAForEveryEdge(clone)
+  );
+  it(
+    "Should NOT have duplicate node references",
+    shouldNotHaveDuplicateNodeReference(clone)
+  );
+  it(
+    "Should NOT have duplicate node identifiers",
+    shouldNotHaveDuplicateNodeIdentifiers(clone)
+  );
+  it(
+    "Should share the same node object reference",
+    shouldShareTheSameNodeObjectReference(clone)
+  );
+  it(
+    "Should NOT have duplicate edge references",
+    shouldNotHaveDuplicateEdgeReference(clone)
+  );
+  it(
+    "Should NOT have duplicate edge identifiers",
+    shouldNotHaveDuplicateEdgeIdentifiers(clone)
+  );
+  it(
+    "Should share the same edge object reference",
+    shouldShareTheSameEdgeObjectReference(clone)
+  );
+  it(
+    "Should have valid node references and identifiers",
+    shouldHaveValidNodeReferencesAndIdentifiers(clone)
+  );
 
-  it ('Should not share any references', () => {
+  it("Should not share any references", () => {
     let success = true;
     for (let i = 0, iMax = clone.nodes.length; i < iMax; ++i) {
       const node = clone.nodes[i];
@@ -326,7 +389,7 @@ describe('Clone Network', () => {
     assert(success);
   });
 
-  it('Should have equal nodes', () => {
+  it("Should have equal nodes", () => {
     let success = true;
     assert(clone.nodes.length === network.nodes.length);
 
@@ -343,7 +406,7 @@ describe('Clone Network', () => {
     assert(success);
   });
 
-  it('Should have equal edges', () => {
+  it("Should have equal edges", () => {
     let success = true;
     assert(clone.edges.length === network.edges.length);
 
@@ -360,7 +423,7 @@ describe('Clone Network', () => {
     assert(success);
   });
 
-  it ('Should be equivalent networks', () => {
+  it("Should be equivalent networks", () => {
     assert(compareNetworks(clone, network));
   });
 });

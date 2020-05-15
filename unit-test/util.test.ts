@@ -1,51 +1,105 @@
-import assert from 'assert';
-import { describe, it } from 'mocha';
-import { access, addToMapOfMaps, getFromMapOfMaps, makeList, shallowListCompare } from '../lib';
+import assert from "assert";
+import { describe, it } from "mocha";
+import {
+  access,
+  addToMapOfMaps,
+  getFromMapOfMaps,
+  makeList,
+  shallowListCompare,
+} from "../lib";
 
-describe('Utilities', () => {
+describe("Utilities", () => {
   const obj = {};
 
   const data = {
     test1: 0,
     test2: "string value",
-    test3: obj
+    test3: obj,
   };
 
-  it ('Should access a property via key string', () => {
-    let strValue = access(data, 'test1', (val): val is string => (typeof val === "string"));
+  it("Should access a property via key string", () => {
+    let strValue = access(
+      data,
+      "test1",
+      (val): val is string => typeof val === "string"
+    );
     assert(strValue === null);
-    strValue = access(data, 'test2', (val): val is string => (typeof val === "string"));
+    strValue = access(
+      data,
+      "test2",
+      (val): val is string => typeof val === "string"
+    );
     assert(strValue === "string value");
-    strValue = access(data, 'test3', (val): val is string => (typeof val === "string"));
+    strValue = access(
+      data,
+      "test3",
+      (val): val is string => typeof val === "string"
+    );
     assert(strValue === null);
 
-    let numValue = access(data, 'test1', (val): val is number => (typeof val === "number"));
+    let numValue = access(
+      data,
+      "test1",
+      (val): val is number => typeof val === "number"
+    );
     assert(numValue === 0);
-    numValue = access(data, 'test2', (val): val is number => (typeof val === "number"));
+    numValue = access(
+      data,
+      "test2",
+      (val): val is number => typeof val === "number"
+    );
     assert(numValue === null);
-    numValue = access(data, 'test3', (val): val is number => (typeof val === "number"));
+    numValue = access(
+      data,
+      "test3",
+      (val): val is number => typeof val === "number"
+    );
     assert(numValue === null);
 
-    let objValue = access(data, 'test1', (val): val is object => (typeof val === "object"));
+    let objValue = access(
+      data,
+      "test1",
+      (val): val is object => typeof val === "object"
+    );
     assert(objValue === null);
-    objValue = access(data, 'test2', (val): val is object => (typeof val === "object"));
+    objValue = access(
+      data,
+      "test2",
+      (val): val is object => typeof val === "object"
+    );
     assert(objValue === null);
-    objValue = access(data, 'test3', (val): val is object => (typeof val === "object"));
+    objValue = access(
+      data,
+      "test3",
+      (val): val is object => typeof val === "object"
+    );
     assert(objValue === obj);
   });
 
-  it ('Should access a property via method', () => {
-    const strValue = access(data, d => d.test2, (val): val is string => (typeof val === "string"));
+  it("Should access a property via method", () => {
+    const strValue = access(
+      data,
+      (d) => d.test2,
+      (val): val is string => typeof val === "string"
+    );
     assert(strValue === "string value");
 
-    const numValue = access(data, d => d.test1, (val): val is number => (typeof val === "number"));
+    const numValue = access(
+      data,
+      (d) => d.test1,
+      (val): val is number => typeof val === "number"
+    );
     assert(numValue === 0);
 
-    const objValue = access(data, d => d.test3, (val): val is object => (typeof val === "object"));
+    const objValue = access(
+      data,
+      (d) => d.test3,
+      (val): val is object => typeof val === "object"
+    );
     assert(objValue === obj);
   });
 
-  it ('Should make a list', () => {
+  it("Should make a list", () => {
     assert(Array.isArray(makeList(0)));
     assert(Array.isArray(makeList([0])));
     assert(Array.isArray(makeList([0, 1, 2, 3, 4])));
@@ -63,7 +117,7 @@ describe('Utilities', () => {
     assert(Array.isArray(makeList([null, null, null])));
   });
 
-  it ('Should set a value in a map of maps', () => {
+  it("Should set a value in a map of maps", () => {
     const m = new Map<number, Map<number, number>>();
 
     for (let i = 0; i < 100; ++i) {
@@ -79,7 +133,7 @@ describe('Utilities', () => {
     });
   });
 
-  it ('Should retrieve a value from a map of maps', () => {
+  it("Should retrieve a value from a map of maps", () => {
     const m = new Map<number, Map<number, number>>();
 
     for (let i = 0; i < 100; ++i) {
@@ -95,7 +149,7 @@ describe('Utilities', () => {
     }
   });
 
-  it ('Should shallow compare lists', () => {
+  it("Should shallow compare lists", () => {
     const a = [1, 2, 3, 4, 5, 6];
     const b = [1, 2, 3, 4, 5, 6];
     assert(shallowListCompare(a, b));
