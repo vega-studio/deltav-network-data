@@ -1,0 +1,92 @@
+@import (css) url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300');
+
+html {
+  body {
+    background-color: #26324e;
+    color: white;
+    font-family: 'Verdana', 'Source Sans Pro', sans-serif;
+    font-weight: 200;
+    margin: 0px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+  }
+
+  code {
+    overflow: auto;
+    white-space: pre-line;
+    background: #000639;
+    color: white;
+    margin: 8px;
+    margin-top: 24px;
+    margin-bottom: 24px;
+    padding: 8px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: #20233C;
+  }
+
+  a {
+    color: #20233C;
+    text-decoration: none;
+  }
+
+  #main {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    bottom: 0;
+    top: 0;
+    display: flex;
+    flex-direction: row;
+    overflow: auto;
+  }
+
+  .Content {
+    color: rgba(32, 35, 60, 0.7);
+    flex: 1 1 auto;
+    background: white;
+    margin-bottom: 0px;
+    padding: 12px;
+  }
+
+  .Break {
+    height: 1px;
+    background-color: rgba(32, 35, 60, 0.7);
+    flex: 0 1 1px;
+    margin: 24px;
+  }
+
+  .Menu {
+    flex: 1 1 580px;
+    background: #F0F0F5;
+    padding: 24px;
+  }
+
+  .Example {
+    flex: 0 1 auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .Graphic {
+    margin-top: 24px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: row;
+    height: 400px;
+    overflow: hidden;
+
+    div {
+      flex: 1 1 auto;
+    }
+
+    code {
+      flex: 0 1 300px;
+      margin: 0px;
+    }
+  }
+}

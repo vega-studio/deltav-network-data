@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no">
+    <title>Network Data</title>
+  </head>
+  <body>
+    <div id="main">
+      <div class="Menu">
+        <a href="#make-network-anchor">Make Network</a>
+      </div>
+      <div class="Content">
+        <h1>Network Data</h1>
+        <div>
+          This project is a suite of methods and types to aid in working with data that is interconnected in a network.
+          The following expresses examples that show how to work with the data and see some visualizations of the results
+          and operations the methods perform.
+        </div>
+        <div class="Break"></div>
+        <div class="Example">
+          <h2>Making the Data</h2>
+          <h3>makeNetwork</h3>
+          <div>
+            This method helps convert an existing data structure into a NetworkData object which is the basis for operations
+            in this library.
+          </div>
+
+          <div class="Graphic">
+            <a id="make-network-anchor"></a>
+            <div id="make-network-graphics"></div>
+            <code>
+              // Start with some data
+              const nodes = genNodes(100);
+              const edges = genEdges(nodes, 1000);
+
+              // Convert the data to NetworkData
+              const network = await makeNetwork({
+                edgeData: edges,
+                nodeData: nodes,
+
+                nodeId: row => row.UID || "",
+                edgeId: row => row.UID || "",
+
+                nodeMeta: row => ({
+                  name: row.name
+                }),
+
+                edgeMeta: row => ({
+                  name: row.name
+                }),
+
+                edgeA: row => row.UID_A || "",
+                edgeB: row => row.UID_B || "",
+                edgeValues: row => ({ ab: row.numMetric, ba: row.numMetric }),
+                nodeValues: row => row.numMetric
+              });
+            </code>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script language="javascript" src="index.js"></script>
+  </body>
+</html>
