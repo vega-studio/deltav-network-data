@@ -18,6 +18,11 @@ interface IValuedObject {
 
 export interface IRandomNode extends IValuedObject {}
 
+export interface IRandomNodeWithEdge extends IValuedObject {
+  /** A list of nodes this node connects to */
+  siblings: (string | number)[];
+}
+
 export interface IRandomEdge extends IValuedObject {
   /** Guaranteed to point to a Node's UID */
   UID_A?: string | number;
@@ -44,9 +49,13 @@ function randPhrase(
 }
 
 /**
- * Generates ramdonized node data. Each node for a given index will always be the same:
- * genNodes(5) === genNodes(5) (deeply equals, not object pointer equals)
+ * Generates ramdomized node data. Each node for a given index will always be
+ * the same:
+ *
+ * genNodes(5) === genNodes(5) (deeply equals, not object pointerequals)
+ *
  * also
+ *
  * genNodes(5) === genNodes(15) for the first 5 nodes
  */
 export function randomNodes(words: string[], count: number) {
@@ -60,7 +69,7 @@ export function randomNodes(words: string[], count: number) {
       UID: ++NODE_UID,
       dateMetric: new Date(),
       numMetric: rand(1000),
-      strMetric: randWord(words, rand)
+      strMetric: randWord(words, rand),
     });
   }
 
@@ -68,11 +77,33 @@ export function randomNodes(words: string[], count: number) {
 }
 
 /**
- * Generates randomized edge data. Each node for a given index will always be the same if the input node list is
- * the same:
+ * This generates random node data that has the connection information in the
+ * node data and NOT in a seperate edge data list.
+ */
+export function randomNodesWithEdges(words: string[], count: number, edgesPerNode: number) {
+  const rand = randomSeed.create("nodes-with-edges");
+  const nodes: IRandomNodeWithEdge[] = this.randomNodes(words, count);
+
+  for (let i = 0, iMax = nodes.length; i < iMax; ++i) {
+    const node = nodes[i];
+    const items = exclusiveRandItems(rand, nodes, edgesPerNode);
+    node.siblings = items?.map(node => node.UID || -1) || [];
+  }
+
+  return nodes;
+}
+
+/**
+ * Generates randomized edge data. Each node for a given index will always be
+ * the same if the input node list is the same:
+ *
  * nodes = genNodes(5)
- * genEdges(nodes, 5) === genEdges(nodes, 5) (deeply equals, not object pointer equals)
+ *
+ * genEdges(nodes, 5) === genEdges(nodes, 5) (deeply equals, not object pointer
+ * equals)
+ *
  * also
+ *
  * genEdges(nodes, 5) === genEdges(nodes, 15) for the first 5 edges
  */
 export function randomEdges(
@@ -95,7 +126,7 @@ export function randomEdges(
       UID_B: pickTwo[1].UID,
       dateMetric: new Date(),
       numMetric: rand(1000),
-      strMetric: randWord(words, rand)
+      strMetric: randWord(words, rand),
     });
   }
 
@@ -118,21 +149,19 @@ export async function randomNetwork(
     edgeData: edges,
     nodeData: nodes,
 
-    nodeId: nodeRow => nodeRow.UID || "",
-    nodeMeta: nodeRow => nodeRow,
-    nodeValues: nodeRow => nodeRow.numMetric,
+    nodeId: (nodeRow) => nodeRow.UID || "",
+    nodeMeta: (nodeRow) => nodeRow,
+    nodeValues: (nodeRow) => nodeRow.numMetric,
 
-    edgeId: edgeRow => edgeRow.UID || "",
-    edgeMeta: edgeRow => edgeRow,
-    edgeA: edgeRow => edgeRow.UID_A || "",
-    edgeB: edgeRow => edgeRow.UID_B || "",
-    edgeValues: edgeRow => ({ ab: edgeRow.numMetric, ba: edgeRow.numMetric })
+    edgeId: (edgeRow) => edgeRow.UID || "",
+    edgeMeta: (edgeRow) => edgeRow,
+    edgeA: (edgeRow) => edgeRow.UID_A || "",
+    edgeB: (edgeRow) => edgeRow.UID_B || "",
+    edgeValues: (edgeRow) => ({ ab: edgeRow.numMetric, ba: edgeRow.numMetric }),
   });
 
   // Clean up any duplicate edges
   combineSharedEdges(network, (a, _b) => a);
-
-  network.edges;
 
   return network;
 }

@@ -12,6 +12,6 @@ export function cloneNode<TNodeMeta, TEdgeMeta>(
     in: a.in.slice(0),
     out: a.out.slice(0),
     value: Array.isArray(a.value) ? a.value.slice(0) : a.value,
-    meta: a.meta
+    meta: a.meta,
   };
 }

@@ -16,6 +16,6 @@ export function path<TNodeMeta, TEdgeMeta>(
 
   return {
     path: [],
-    distance: 0
+    distance: 0,
   };
 }

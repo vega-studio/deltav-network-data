@@ -3,10 +3,12 @@ import { describe, it } from "mocha";
 import {
   access,
   addToMapOfMaps,
+  exclusiveRandItems,
   getFromMapOfMaps,
   makeList,
   shallowListCompare,
 } from "../lib";
+const randomSeed = require("random-seed");
 
 describe("Utilities", () => {
   const obj = {};
@@ -165,5 +167,19 @@ describe("Utilities", () => {
     const g = [1, 2, 3, "hey"];
     const h = [1, 4, 2, "hey"];
     assert(!shallowListCompare(g, h));
+  });
+
+  it("Should randomly pick items in order", () => {
+    const rand = randomSeed.create("test-exclusive-items");
+    const vals = new Array(100).fill(0).map((_, i) => i);
+
+    for (let i = 0; i < 1000; ++i) {
+      const items = exclusiveRandItems(rand, vals, 10);
+      assert((items?.length || 0) === 10);
+
+      items?.forEach((i) => {
+        assert(i !== void 0);
+      });
+    }
   });
 });

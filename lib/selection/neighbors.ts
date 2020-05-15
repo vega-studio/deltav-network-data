@@ -14,7 +14,7 @@ export interface INeighborsOptions<TNodeMeta, TEdgeMeta> {
 export function neighbors<TNodeMeta, TEdgeMeta>({
   node,
   exclude,
-  includeEdgeToExcludedNode
+  includeEdgeToExcludedNode,
 }: INeighborsOptions<TNodeMeta, TEdgeMeta>) {
   const nodes = [];
   const edges = [];
@@ -61,6 +61,6 @@ export function neighbors<TNodeMeta, TEdgeMeta>({
 
   return {
     nodes,
-    edges
+    edges,
   };
 }

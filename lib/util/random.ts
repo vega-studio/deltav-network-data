@@ -76,7 +76,7 @@ export function exclusiveRandItems<T>(
   // Otherwise, do the traditional pick random items to include
   else {
     const out: T[] = [];
-    const pick = randomSum(rand, list.length, count + 1).map(v =>
+    const pick = randomSum(rand, list.length - 1, count + 1).map((v) =>
       v < 0 ? 0 : v >= list.length ? list.length - 1 : v
     );
     pick.pop();

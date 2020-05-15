@@ -2,17 +2,23 @@ import assert from "assert";
 import { before, describe, it } from "mocha";
 import {
   cloneNetwork,
+  combineSharedEdges,
   compareEdges,
   compareNetworks,
   compareNodes,
   emptyNetwork,
   getFromMapOfMaps,
+  Identifier,
   IMakeNetworkResult,
   IRandomEdge,
   IRandomNode,
+  IRandomNodeWithEdge,
+  makeNetwork,
+  MakeNetworkAggregateValueMode,
   randomEdges,
   randomNetwork,
   randomNodes,
+  randomNodesWithEdges,
 } from "../lib";
 import { WORDS } from "../test/data/word-list";
 
@@ -253,7 +259,8 @@ describe("Make Network", () => {
   before(async () => {
     const net = await randomNetwork(WORDS, 100, 1000);
 
-    // Assign the properties to our existing object so we keep the same reference in the tests
+    // Assign the properties to our existing object so we keep the same
+    // reference in the tests.
     Object.assign(network, net);
   });
 
@@ -309,7 +316,8 @@ describe("Make Network", () => {
 describe("Clone Network", () => {
   before(async () => {
     const net = cloneNetwork(network);
-    // Assign the properties to our existing object so we keep the same reference in the tests
+    // Assign the properties to our existing object so we keep the same
+    // reference in the tests
     Object.assign(clone, net);
   });
 
@@ -426,4 +434,398 @@ describe("Clone Network", () => {
   it("Should be equivalent networks", () => {
     assert(compareNetworks(clone, network));
   });
+});
+
+describe("Make network - Aggregation", () => {
+  const network: Network = Object.assign(emptyNetwork<Meta, Meta>(), {
+    errors: null,
+  });
+
+  const nodes: IRandomNode[] = randomNodes(WORDS, 100);
+  const edges: IRandomEdge[] = randomEdges(WORDS, nodes, 1000);
+
+  const partialNodes: (Partial<IRandomNode> & { UID: Identifier })[] = [];
+  const partialEdges: (Partial<IRandomEdge> & { UID: Identifier })[] = [];
+
+  // We want to break up our nodes into scattered rows of info where all the
+  // data isn't in a single row.
+  nodes.forEach((node) => {
+    let partial: Partial<IRandomNode> & { UID: Identifier } = {
+      UID: node.UID || "",
+      name: node.name,
+    };
+    partialNodes.push(partial);
+
+    partial = {
+      UID: node.UID || "",
+      numMetric: node.numMetric,
+      dateMetric: node.dateMetric,
+      strMetric: node.strMetric,
+    };
+    partialNodes.push(partial);
+  });
+
+  edges.forEach((edge) => {
+    let partial: Partial<IRandomEdge> & { UID: Identifier } = {
+      UID: edge.UID || "",
+      name: edge.name,
+    };
+    partialEdges.push(partial);
+
+    partial = {
+      UID: edge.UID || "",
+      numMetric: edge.numMetric,
+      dateMetric: edge.dateMetric,
+      strMetric: edge.strMetric,
+    };
+    partialEdges.push(partial);
+
+    partial = {
+      UID: edge.UID || "",
+      UID_A: edge.UID_A,
+    };
+    partialEdges.push(partial);
+
+    partial = {
+      UID: edge.UID || "",
+      UID_B: edge.UID_B,
+    };
+    partialEdges.push(partial);
+  });
+
+  before(async () => {
+    // Make a network from our randomized data
+    const net = await makeNetwork({
+      aggregateResults: true,
+      aggregateValueMode: MakeNetworkAggregateValueMode.CONCAT,
+      edgeData: partialEdges,
+      nodeData: partialNodes,
+
+      nodeId: (nodeRow) => nodeRow.UID || "",
+      nodeMeta: (nodeRow) => nodeRow,
+      nodeValues: (nodeRow) => nodeRow.numMetric,
+
+      edgeId: (edgeRow) => edgeRow.UID || "",
+      edgeMeta: (edgeRow) => edgeRow,
+      edgeA: (edgeRow) => edgeRow.UID_A || "",
+      edgeB: (edgeRow) => edgeRow.UID_B || "",
+      edgeValues: (edgeRow) => ({
+        ab: edgeRow.numMetric,
+        ba: edgeRow.numMetric,
+      }),
+    });
+
+    // Clean up any duplicate edges
+    combineSharedEdges(net, (a, _b) => a);
+    // Apply the correct values to the network reference for the tests to consume
+    Object.assign(network, net);
+  });
+
+  it("Should not have errors", shouldNotHaveErrors(network));
+  it("Should have a row for every node", shouldHaveARowForEveryNode(network));
+  it("Should have a row for every edge", shouldHaveARowForEveryEdge(network));
+  it(
+    "Should have a mapping for every node id",
+    shouldHaveAMappingForEveryNodeId(network)
+  );
+  it(
+    "Should have a mapping for every edge id",
+    shouldHaveAMappingForEveryEdgeId(network)
+  );
+  it(
+    "Should have an a to b for every edge",
+    shouldHaveAnAtoBForEveryEdge(network)
+  );
+  it(
+    "Should NOT have an b to a for every edge (Unless a === b)",
+    shouldNotHaveAnBtoAForEveryEdge(network)
+  );
+  it(
+    "Should NOT have duplicate node references",
+    shouldNotHaveDuplicateNodeReference(network)
+  );
+  it(
+    "Should NOT have duplicate node identifiers",
+    shouldNotHaveDuplicateNodeIdentifiers(network)
+  );
+  it(
+    "Should share the same node object reference",
+    shouldShareTheSameNodeObjectReference(network)
+  );
+  it(
+    "Should NOT have duplicate edge references",
+    shouldNotHaveDuplicateEdgeReference(network)
+  );
+  it(
+    "Should NOT have duplicate edge identifiers",
+    shouldNotHaveDuplicateEdgeIdentifiers(network)
+  );
+  it(
+    "Should share the same edge object reference",
+    shouldShareTheSameEdgeObjectReference(network)
+  );
+  it(
+    "Should have valid node references and identifiers",
+    shouldHaveValidNodeReferencesAndIdentifiers(network)
+  );
+});
+
+describe("Make network - Aggregation with Errors", () => {
+  const network: Network = Object.assign(emptyNetwork<Meta, Meta>(), {
+    errors: null,
+  });
+
+  const nodes: IRandomNode[] = randomNodes(WORDS, 100);
+  const edges: IRandomEdge[] = randomEdges(WORDS, nodes, 1000);
+
+  const partialNodes: (Partial<IRandomNode> & { UID: Identifier })[] = [];
+  const partialEdges: (Partial<IRandomEdge> & { UID: Identifier })[] = [];
+
+  // We want to break up our nodes into scattered rows of info where all the
+  // data isn't in a single row.
+  nodes.forEach((node) => {
+    partialNodes.push({
+      UID: node.UID || "",
+      name: node.name,
+    });
+
+    partialNodes.push({
+      UID: node.UID || "",
+      numMetric: node.numMetric,
+      dateMetric: node.dateMetric,
+      strMetric: node.strMetric,
+    });
+  });
+
+  edges.forEach((edge) => {
+    partialEdges.push({
+      UID: edge.UID || "",
+      name: edge.name,
+    });
+
+    partialEdges.push({
+      UID: edge.UID || "",
+      numMetric: edge.numMetric,
+      dateMetric: edge.dateMetric,
+      strMetric: edge.strMetric,
+    });
+
+    partialEdges.push({
+      UID: edge.UID || "",
+      UID_A: edge.UID_A,
+    });
+
+    partialEdges.push({
+      UID: edge.UID || "",
+      UID_B: edge.UID_B,
+    });
+  });
+
+  // Push in some bad partials
+  partialEdges.push({
+    UID: 10000,
+    UID_A: 100,
+    numMetric: 10,
+    dateMetric: new Date(),
+    strMetric: "Broken",
+  });
+
+  partialEdges.push({
+    UID: 10001,
+    UID_B: 100,
+    numMetric: 10,
+    dateMetric: new Date(),
+    strMetric: "Broken",
+  });
+
+  before(async () => {
+    // Make a network from our randomized data
+    const net = await makeNetwork({
+      aggregateResults: true,
+      aggregateValueMode: MakeNetworkAggregateValueMode.CONCAT,
+      edgeData: partialEdges,
+      nodeData: partialNodes,
+
+      nodeId: (nodeRow) => nodeRow.UID || "",
+      nodeMeta: (nodeRow) => nodeRow,
+      nodeValues: (nodeRow) => nodeRow.numMetric,
+
+      edgeId: (edgeRow) => edgeRow.UID || "",
+      edgeMeta: (edgeRow) => edgeRow,
+      edgeA: (edgeRow) => edgeRow.UID_A || "",
+      edgeB: (edgeRow) => edgeRow.UID_B || "",
+      edgeValues: (edgeRow) => ({
+        ab: edgeRow.numMetric,
+        ba: edgeRow.numMetric,
+      }),
+    });
+
+    // Clean up any duplicate edges
+    combineSharedEdges(net, (a, _b) => a);
+    // Apply the correct values to the network reference for the tests to consume
+    Object.assign(network, net);
+  });
+
+  it("Should have errors", () => {
+    assert(network.errors && network.errors.length === 2);
+  });
+
+  it("Should not contain errored edges", () => {
+    for (let i = 0, iMax = network.edges.length; i < iMax; ++i) {
+      const edge = network.edges[i];
+      assert(!(edge.id >= 10000));
+    }
+
+    assert(!network.edgeMap.has(10000));
+    assert(!network.edgeMap.has(10001));
+  });
+
+  it("Should have a row for every node", shouldHaveARowForEveryNode(network));
+  it("Should have a row for every edge", shouldHaveARowForEveryEdge(network));
+  it(
+    "Should have a mapping for every node id",
+    shouldHaveAMappingForEveryNodeId(network)
+  );
+  it(
+    "Should have a mapping for every edge id",
+    shouldHaveAMappingForEveryEdgeId(network)
+  );
+  it(
+    "Should have an a to b for every edge",
+    shouldHaveAnAtoBForEveryEdge(network)
+  );
+  it(
+    "Should NOT have an b to a for every edge (Unless a === b)",
+    shouldNotHaveAnBtoAForEveryEdge(network)
+  );
+  it(
+    "Should NOT have duplicate node references",
+    shouldNotHaveDuplicateNodeReference(network)
+  );
+  it(
+    "Should NOT have duplicate node identifiers",
+    shouldNotHaveDuplicateNodeIdentifiers(network)
+  );
+  it(
+    "Should share the same node object reference",
+    shouldShareTheSameNodeObjectReference(network)
+  );
+  it(
+    "Should NOT have duplicate edge references",
+    shouldNotHaveDuplicateEdgeReference(network)
+  );
+  it(
+    "Should NOT have duplicate edge identifiers",
+    shouldNotHaveDuplicateEdgeIdentifiers(network)
+  );
+  it(
+    "Should share the same edge object reference",
+    shouldShareTheSameEdgeObjectReference(network)
+  );
+  it(
+    "Should have valid node references and identifiers",
+    shouldHaveValidNodeReferencesAndIdentifiers(network)
+  );
+});
+
+describe("Make network - Aggregation with single row source", () => {
+  const network: Network = Object.assign(emptyNetwork<Meta, Meta>(), {
+    errors: null,
+  });
+
+  const nodes: IRandomNodeWithEdge[] = randomNodesWithEdges(WORDS, 100, 10);
+
+  before(async () => {
+    // Make a network from our randomized data
+    const net = await makeNetwork({
+      aggregateResults: true,
+      aggregateValueMode: MakeNetworkAggregateValueMode.CONCAT,
+      edgeData: nodes,
+      nodeData: nodes,
+
+      nodeId: (nodeRow) => nodeRow.UID || "",
+      nodeMeta: (nodeRow) => nodeRow,
+      nodeValues: (nodeRow) => nodeRow.numMetric,
+
+      edgeId: (edgeRow) =>
+        edgeRow.siblings.map((neighbor) => `${edgeRow.UID}_${neighbor}`),
+      edgeInfoForId: (_id: Identifier, idIndex: number) => ({
+        siblingIndex: idIndex,
+      }),
+      edgeMeta: (edgeRow) => edgeRow,
+      edgeA: (edgeRow) => edgeRow.UID || "",
+      edgeB: (edgeRow, info) => edgeRow.siblings[info?.siblingIndex || 0] || "",
+
+      // These nodes have no useful edge to edge value distinctions
+      edgeValues: () => ({
+        ab: 1,
+        ba: 1,
+      }),
+    });
+
+    // Clean up any duplicate edges
+    combineSharedEdges(net, (a, _b) => a);
+    // Apply the correct values to the network reference for the tests to consume
+    Object.assign(network, net);
+  });
+
+  it("Should not have errors", shouldNotHaveErrors(network));
+  it("Should have a row for every node", shouldHaveARowForEveryNode(network));
+
+  it("Should have a row for every edge", () => {
+    for (let i = 0, iMax = network.edges.length; i < iMax; ++i) {
+      const edge = network.edges[i];
+      assert(
+        nodes.find(
+          (row) =>
+            edge.a.id === row.UID && row.siblings.find((s) => s === edge.b.id)
+        )
+      );
+    }
+  });
+
+  it(
+    "Should have a mapping for every node id",
+    shouldHaveAMappingForEveryNodeId(network)
+  );
+  it(
+    "Should have a mapping for every edge id",
+    shouldHaveAMappingForEveryEdgeId(network)
+  );
+  it(
+    "Should have an a to b for every edge",
+    shouldHaveAnAtoBForEveryEdge(network)
+  );
+  it(
+    "Should NOT have an b to a for every edge (Unless a === b)",
+    shouldNotHaveAnBtoAForEveryEdge(network)
+  );
+  it(
+    "Should NOT have duplicate node references",
+    shouldNotHaveDuplicateNodeReference(network)
+  );
+  it(
+    "Should NOT have duplicate node identifiers",
+    shouldNotHaveDuplicateNodeIdentifiers(network)
+  );
+  it(
+    "Should share the same node object reference",
+    shouldShareTheSameNodeObjectReference(network)
+  );
+  it(
+    "Should NOT have duplicate edge references",
+    shouldNotHaveDuplicateEdgeReference(network)
+  );
+  it(
+    "Should NOT have duplicate edge identifiers",
+    shouldNotHaveDuplicateEdgeIdentifiers(network)
+  );
+  it(
+    "Should share the same edge object reference",
+    shouldShareTheSameEdgeObjectReference(network)
+  );
+  it(
+    "Should have valid node references and identifiers",
+    shouldHaveValidNodeReferencesAndIdentifiers(network)
+  );
 });

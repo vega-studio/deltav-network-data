@@ -9,7 +9,7 @@ import {
   isIdentifier,
   isWeightNumber,
   isWeights,
-  Weights
+  Weights,
 } from "../types";
 import { access } from "../util/access";
 import { addToMapOfMaps } from "../util/map-of-maps";
@@ -17,38 +17,32 @@ import { removeEdge } from "./remove-edge";
 
 type PartialObject = { [key: string]: any };
 
-function isTuple<U extends PartialObject>(val: any): val is [Identifier, U] {
-  return (
-    Array.isArray(val) &&
-    val.length === 2 &&
-    isIdentifier(val[0]) &&
-    !isIdentifier(val[1])
-  );
-}
-
 /**
  * These are the modes available for the aggregation procedure.
  */
 export enum MakeNetworkAggregateValueMode {
   /**
-   * This is the default: values discovered (whether list or single number) will simply replace the previously found
-   * values.
+   * This is the default: values discovered (whether list or single number) will
+   * simply replace the previously found values.
    */
   NONE,
   /**
-   * DEFINED values discovered will cause overrides for the values at the index provided. Numbers and arrays are seen
-   * as two separate entities and will fully overrid one another.
-   * existing: [1, 2, 3] new: [0, 1] result: [0, 1, 3]
-   * existing: [1, 2, 3] new: [undefined, 1] result: [1, 1, 3]
-   * existing: 1 new: [2, 3, 4] result: [2, 3, 4]
-   * existing: [1, 2, 3] new: 5 result: 5
-   * exisiting: [undefined, 2, 3] new: [1] result: [1, 2, 3]
+   * DEFINED values discovered will cause overrides for the values at the index
+   * provided. Numbers and arrays are seen as two separate entities and will
+   * fully overrid one another.
+   *
+   * - existing: [1, 2, 3] new: [0, 1] result: [0, 1, 3]
+   * - existing: [1, 2, 3] new: [undefined, 1] result: [1, 1, 3]
+   * - existing: 1 new: [2, 3, 4] result: [2, 3, 4]
+   * - existing: [1, 2, 3] new: 5 result: 5
+   * - exisiting: [undefined, 2, 3] new: [1] result: [1, 2, 3]
    */
   OVERRIDE,
   /**
-   * As values are discovered, they will ALWAYS be concatenated to the end of the values
+   * As values are discovered, they will ALWAYS be concatenated to the end of
+   * the values
    */
-  CONCAT
+  CONCAT,
 }
 
 /**
@@ -63,14 +57,13 @@ export interface IMakeNetworkOptions<
   TEdgePartial extends PartialObject
 > {
   /**
-   * Some datasets spread out the total configuration of a node or edge across multiple rows of data, such as edge
-   * connections where it could be two rows that defines the edge connecting two nodes.
+   * Some datasets spread out the total configuration of a node or edge across
+   * multiple rows of data, such as edge connections where it could be two rows
+   * that defines the edge connecting two nodes.
    *
-   * For meta information: setting this to true will also cause fields for meta to be aggregated together. Same field
-   * names across rows will override each other as discovered.
-   *
-   * Easy check to see if this needs to be true: Does an edge or node have all of it's information spread out across
-   * more than one data row? If yes, this should be true. If data for each node and each edge is located in a single
+   * Easy check to see if this needs to be true: Does an edge or node have all
+   * of it's information spread out across more than one data row? If yes, this
+   * should be true. If data for each node and each edge is located in a single
    * row, then this should be false.
    */
   aggregateResults?: boolean;
@@ -80,10 +73,11 @@ export interface IMakeNetworkOptions<
    */
   aggregateValueMode?: MakeNetworkAggregateValueMode;
   /**
-   * If this is set, the data that originates the nodes and edges will be deleted as it's consumed. This helps reduce
-   * memory pressure and RAM spikes. This only works for data Arrays and not function callbacks. If you use a function
-   * callback, it is recommended that each callback does NOT retain or have stored in any form the data passed into this
-   * converter.
+   * If this is set, the data that originates the nodes and edges will be
+   * deleted as it's consumed. This helps reduce memory pressure and RAM spikes.
+   * This only works for data Arrays and not function callbacks. If you use a
+   * function callback, it is recommended that each callback does NOT retain or
+   * have stored in any form the data passed into this converter.
    */
   deleteWhileProcessing?: boolean;
   /**
@@ -109,30 +103,36 @@ export interface IMakeNetworkOptions<
   /** The data that needs to be converted to edges */
   edgeData: DataProvider<TEdgeSource>;
   /**
-   * The accessor to retrieve the id of edges from the data. This can return a list of identifiers for the single row of
-   * data. This will cause the row of data to get processed repeatedly for each identifier returned.
+   * The accessor to retrieve the id of edges from the data. This can return a
+   * list of identifiers for the single row of data. This will cause the row of
+   * data to get processed repeatedly for each identifier returned.
    *
    * Accessors are either:
-   *  "a property key as a string"
+   *
+   * "a property key as a string"
+   *
    * or a callback
-   *  (dataRow) => dataRow.property
+   *
+   * (dataRow) => dataRow.property
    */
   edgeId: Accessor<
     TEdgeSource,
     | Identifier
-    | Identifier[]
-    | [Identifier, TEdgePartial]
-    | [Identifier, TEdgePartial][],
+    | Identifier[],
     never
   >;
   /**
-   * The accessor to retrieve all properties expected in the meta data of the edge.
-   * Provides data provided when the identifier was found.
+   * After identifiers are created, this will associate some form of information
+   * with the identifier provided. This information gets passed into the
+   * accessors of the other edge properties.
+   */
+  edgeInfoForId?(id: Identifier, idIndex: number, row: TEdgeSource): TEdgePartial;
+  /**
+   * The accessor to retrieve all properties expected in the meta data of the
+   * edge. Provides data provided when the identifier was found.
    *
-   * Accessors are either:
-   *  "a property key as a string"
-   * or a callback
-   *  (dataRow) => dataRow.property
+   * Accessors are either: "a property key as a string" or a callback (dataRow)
+   *  => dataRow.property
    */
   edgeMeta: Accessor<TEdgeSource, TEdgeMeta, TEdgePartial>;
   /**
@@ -146,40 +146,42 @@ export interface IMakeNetworkOptions<
    */
   edgeValues?: Accessor<
     TEdgeSource,
-    { ab: Weights; ba: Weights },
+    { ab?: Weights; ba?: Weights } | undefined,
     TEdgePartial
   >;
   /**
-   * The data that needs to be converted to nodes. This can be provided as a method for producing the row of data or
-   * an async method that may have a fetch routine to the server to produce the data. Return a falsy value to stop
-   * function callback returns.
+   * The data that needs to be converted to nodes. This can be provided as a
+   * method for producing the row of data or an async method that may have a
+   * fetch routine to the server to produce the data. Return a falsy value to
+   * stop function callback returns.
    */
   nodeData: DataProvider<TNodeSource>;
   /**
-   * The accessor to retrieve the id of nodes from the data. This can return a list of identifiers for the single row of
-   * data. This will cause the row of data to get processed repeatedly for each identifier returned.
+   * The accessor to retrieve the id of nodes from the data. This can return a
+   * list of identifiers for the single row of data. This will cause the row of
+   * data to get processed repeatedly for each identifier returned.
    *
-   * Accessors are either:
-   *  "a property key as a string"
-   * or a callback
-   *  (dataRow) => dataRow.property
+   * Accessors are either: "a property key as a string" or a callback (dataRow)
+   *  => dataRow.property
    */
   nodeId: Accessor<
     TNodeSource,
     | Identifier
-    | Identifier[]
-    | [Identifier, TNodePartial]
-    | [Identifier, TNodePartial][],
+    | Identifier[],
     never
   >;
   /**
-   * The accessor to retrieve all properties expected in the meta data of the node.
-   * Provides data provided when the identifier was found.
+   * After identifiers are created, this will associate some form of information
+   * with the identifier provided. This information gets passed into the
+   * accessors of the other node properties.
+   */
+  nodeInfoForId?(id: Identifier, idIndex: number, row: TNodeSource): TNodePartial;
+  /**
+   * The accessor to retrieve all properties expected in the meta data of the
+   * node. Provides data provided when the identifier was found.
    *
-   * Accessors are either:
-   *  "a property key as a string"
-   * or a callback
-   *  (dataRow) => dataRow.property
+   * Accessors are either: "a property key as a string" or a callback (dataRow)
+   *  => dataRow.property
    */
   nodeMeta: Accessor<TNodeSource, TNodeMeta, TNodePartial>;
   /**
@@ -191,10 +193,10 @@ export interface IMakeNetworkOptions<
    * or a callback
    *  (dataRow) => dataRow.property
    */
-  nodeValues?: Accessor<TNodeSource, Weights, TNodePartial>;
+  nodeValues?: Accessor<TNodeSource, Weights | undefined, TNodePartial>;
   /**
-   * Supply this with a list of errors you wish to ignore. For instance, in some cases, it may be necessary to have
-   * node's with duplicate identifiers.
+   * Supply this with a list of errors you wish to ignore. For instance, in some
+   * cases, it may be necessary to have node's with duplicate identifiers.
    */
   suppressErrors?: MakeNetworkErrorType[];
 }
@@ -205,14 +207,23 @@ export interface IMakeNetworkOptions<
 export enum MakeNetworkErrorType {
   /** An identifier happened that is invalid */
   BAD_ID,
-  /** A lookup for a node happened, and there was no node found with the calculated identifier */
+  /**
+   * A lookup for a node happened, and there was no node found with the
+   * calculated identifier
+   */
   NODE_NOT_FOUND,
-  /** Two nodes were found with the same identifier. The most recent node will be the node preserved */
+  /**
+   * Two nodes were found with the same identifier. The most recent node will
+   * be the node preserved
+   */
   DUPLICATE_NODE_ID,
-  /** Two edges were found with the same identifier. The most recent edge will be the node preserved */
+  /**
+   * Two edges were found with the same identifier. The most recent edge will
+   * be the node preserved
+   */
   DUPLICATE_EDGE_ID,
   /** System failure made an unknown type error */
-  UNKNOWN
+  UNKNOWN,
 }
 
 /**
@@ -249,7 +260,8 @@ function makeError<T, U>(
 }
 
 /**
- * Performs the correct aggregation strategy for values found during aggregate mode.
+ * Performs the correct aggregation strategy for values found during aggregate
+ * mode.
  */
 function aggregateValue(
   mode: MakeNetworkAggregateValueMode,
@@ -258,7 +270,8 @@ function aggregateValue(
 ) {
   switch (mode) {
     /**
-     * Always appends defined discovered values. All undefined values will get stripped out.
+     * Always appends defined discovered values. All undefined values will get
+     * stripped out.
      */
     case MakeNetworkAggregateValueMode.CONCAT: {
       if (oldVal === void 0) return newVal;
@@ -272,7 +285,8 @@ function aggregateValue(
     }
 
     /**
-     * If the new value is defined, completely replace the old value with the new one found
+     * If the new value is defined, completely replace the old value with the
+     * new one found
      */
     case MakeNetworkAggregateValueMode.NONE: {
       if (newVal === void 0) {
@@ -282,8 +296,9 @@ function aggregateValue(
     }
 
     /**
-     * If either values are a number a complete override occurs. If both are a list, then the defined values in the new
-     * list will override the values in the old list at the index the new list specified.
+     * If either values are a number a complete override occurs. If both are a
+     * list, then the defined values in the new list will override the values in
+     * the old list at the index the new list specified.
      */
     case MakeNetworkAggregateValueMode.OVERRIDE: {
       if (oldVal === void 0) return newVal;
@@ -311,11 +326,13 @@ function aggregateValue(
 }
 
 /**
- * This consumes a list of data and processes the objects to become INode's and IEdge's. The goal of this method is to
- * help the processor reduce it's memory footprint of a previous dataset as it grows the new networked dataset.
+ * This consumes a list of data and processes the objects to become INode's and
+ * IEdge's. The goal of this method is to help the processor reduce it's memory
+ * footprint of a previous dataset as it grows the new networked dataset.
  *
- * This helps with processing enormous data loads and careful attention should be paid to how you are handling your data.
- * Ensure there are not multiple copies of the data in some way and let it be converted to this new format.
+ * This helps with processing enormous data loads and careful attention should
+ * be paid to how you are handling your data. Ensure there are not multiple
+ * copies of the data in some way and let it be converted to this new format.
  */
 export async function makeNetwork<
   TNodeSource,
@@ -341,20 +358,24 @@ export async function makeNetwork<
     edgeB,
     edgeData,
     edgeId,
+    edgeInfoForId,
     edgeMeta,
     edgeValues,
     nodeData,
     nodeId,
+    nodeInfoForId,
     nodeMeta,
     nodeValues,
-    suppressErrors
+    suppressErrors,
   } = options;
   const nodes: INode<TNodeMeta, TEdgeMeta>[] = [];
   const edges: IEdge<TNodeMeta, TEdgeMeta>[] = [];
   const errors: IMakeNetworkError<TNodeSource, TEdgeSource>[] = [];
-  // This is a node UID that will be used if a UID cannot be determined from the accessor
+  // This is a node UID that will be used if a UID cannot be determined from the
+  // accessor
   let nodeUID = 0;
-  // This is an edge UID that will be used if a UID cannot be determined from the accessor
+  // This is an edge UID that will be used if a UID cannot be determined from
+  // the accessor
   let edgeUID = 0;
   // Create a lookup to retrieve a node by it's identifier
   const nodeMap = new Map<Identifier, INode<TNodeMeta, TEdgeMeta>>();
@@ -377,7 +398,7 @@ export async function makeNetwork<
     nodeMap,
     edgeMap,
     atobMap,
-    errors
+    errors,
   };
 
   // First map our data to node objects
@@ -385,7 +406,6 @@ export async function makeNetwork<
     // Get the identifier of the node for this particular row of data
     let idFeedback = access(data, nodeId, isIdentifier) || nodeUID++;
     if (!Array.isArray(idFeedback)) idFeedback = [idFeedback];
-    if (isTuple(idFeedback)) idFeedback = [idFeedback];
 
     // List out our identifiers and id info
     const ids: Identifier[] = [];
@@ -393,16 +413,19 @@ export async function makeNetwork<
 
     for (let k = 0, kMax = idFeedback.length; k < kMax; ++k) {
       const check = idFeedback[k];
-      if (isTuple(check)) {
-        ids.push(check[0]);
-        infos.push(check[1]);
-      } else {
-        ids.push(check);
+      ids.push(check);
+
+      if (nodeInfoForId) {
+        infos.push(nodeInfoForId(check, k, data));
+      }
+
+      else {
         infos.push(void 0);
       }
     }
 
-    // For all ids found for this given row: we process the row repeatedly per each id discovered
+    // For all ids found for this given row: we process the row repeatedly per
+    // each id discovered
     for (let k = 0, kMax = ids.length; k < kMax; ++k) {
       const id = ids[k];
       const info = infos[k];
@@ -414,7 +437,8 @@ export async function makeNetwork<
         void 0;
       let node: INode<TNodeMeta, TEdgeMeta> | undefined = void 0;
 
-      // If we're aggregating results, then we modify the existing node for the node identifier
+      // If we're aggregating results, then we modify the existing node for the
+      // node identifier
       if (aggregateResults) {
         if (previous) {
           previous.value =
@@ -426,33 +450,35 @@ export async function makeNetwork<
             in: [],
             out: [],
             value,
-            meta
+            meta,
           };
 
-          // Only in the case a new node is generated do we need to add it to the network object
+          // Only in the case a new node is generated do we need to add it to
+          // the network object
           nodes.push(node);
           nodeMap.set(node.id, node);
         }
       }
 
-      // If we're not aggregating results, then we simply make sure the node is created and create errors for duplicates
+      // If we're not aggregating results, then we simply make sure the node is
+      // created and create errors for duplicates
       else {
         node = {
           id,
           in: [],
           out: [],
           value,
-          meta
+          meta,
         };
 
-        // In non-aggregation mode, finding a second node of the same id is technically an error and will override the
-        // previously found node.
+        // In non-aggregation mode, finding a second node of the same id is
+        // technically an error and will override the previously found node.
         if (previous) {
           makeError(suppress, errors, {
             error: MakeNetworkErrorType.DUPLICATE_NODE_ID,
             source: [data, previous],
             message:
-              "Two nodes have the same Identifier. This overrides the previous node discovered"
+              "Two nodes have the same Identifier. This overrides the previous node discovered",
           });
 
           // Remove the previously found node
@@ -466,7 +492,8 @@ export async function makeNetwork<
     }
   }
 
-  // This is a map to be used for the aggregation mode to harbor all the edges being pieced together
+  // This is a map to be used for the aggregation mode to harbor all the edges
+  // being pieced together
   const partialEdgeMap = new Map<
     Identifier,
     [Partial<IEdge<TNodeMeta, TEdgeMeta>>, (TNodeSource | TEdgeSource)[]]
@@ -477,7 +504,6 @@ export async function makeNetwork<
     // Find the edge identifier this data row is associated with
     let idFeedback = access(data, edgeId, isIdentifier) || edgeUID++;
     if (!Array.isArray(idFeedback)) idFeedback = [idFeedback];
-    if (isTuple(idFeedback)) idFeedback = [idFeedback];
 
     // List out our identifiers and id info
     const ids: Identifier[] = [];
@@ -485,11 +511,13 @@ export async function makeNetwork<
 
     for (let k = 0, kMax = idFeedback.length; k < kMax; ++k) {
       const check = idFeedback[k];
-      if (isTuple(check)) {
-        ids.push(check[0]);
-        infos.push(check[1]);
-      } else {
-        ids.push(check);
+      ids.push(check);
+
+      if (edgeInfoForId) {
+        infos.push(edgeInfoForId(check, k, data));
+      }
+
+      else {
         infos.push(void 0);
       }
     }
@@ -513,15 +541,16 @@ export async function makeNetwork<
         info
       ) || {
         ab: [],
-        ba: []
+        ba: [],
       };
       // Retrieve the meta information this row contains
       const meta =
         access(data, edgeMeta, (val: any): val is TEdgeMeta => val, info) ||
         undefined;
 
-      // For aggregation, we gather as much edge information as possible for the provided data row, then we validate each
-      // edge after all data has been processed first.
+      // For aggregation, we gather as much edge information as possible for the
+      // provided data row, then we validate each edge after all data has been
+      // processed first.
       if (aggregateResults) {
         const previousPair = partialEdgeMap.get(id);
 
@@ -533,10 +562,7 @@ export async function makeNetwork<
           if (nodeA) previous.a = nodeA;
           if (nodeB) previous.b = nodeB;
 
-          if (
-            (Array.isArray(values.ab) && values.ab.length > 0) ||
-            (values.ab as any).toFixed
-          ) {
+          if (isWeights(values.ab)) {
             previous.atob = aggregateValue(
               aggregateValueMode,
               previous.atob,
@@ -544,10 +570,7 @@ export async function makeNetwork<
             );
           }
 
-          if (
-            (Array.isArray(values.ba) && values.ba.length > 0) ||
-            (values.ba as any).toFixed
-          ) {
+          if (isWeights(values.ba)) {
             previous.btoa = aggregateValue(
               aggregateValueMode,
               previous.btoa,
@@ -566,19 +589,20 @@ export async function makeNetwork<
             b: nodeB,
             atob: values.ab,
             btoa: values.ba,
-            meta
+            meta,
           };
 
           partialEdgeMap.set(id, [edge, []]);
         }
       }
 
-      // For non-aggregation, we check for edge duplicate errors and ensure the provided data row has proper nodes for
-      // each end of the edge.
+      // For non-aggregation, we check for edge duplicate errors and ensure the
+      // provided data row has proper nodes for each end of the edge.
       else {
         const previous = edgeMap.get(id);
 
-        // Ensure both nodes can be found for the edge. If not, this is an invalid edge and will not be a part of the data.
+        // Ensure both nodes can be found for the edge. If not, this is an
+        // invalid edge and will not be a part of the data.
         if (!nodeA || !nodeB) {
           makeError(suppress, errors, {
             error: MakeNetworkErrorType.NODE_NOT_FOUND,
@@ -590,7 +614,7 @@ export async function makeNetwork<
                 ? "Could not find node a for this edge"
                 : !b
                 ? "Could not find node b for this edge"
-                : "Error"
+                : "Error",
           });
 
           continue;
@@ -601,9 +625,9 @@ export async function makeNetwork<
           id,
           a: nodeA,
           b: nodeB,
-          atob: values.ab,
-          btoa: values.ba,
-          meta
+          atob: values.ab || 0,
+          btoa: values.ba || 0,
+          meta,
         };
 
         // We must produce errors for duplicate edge identifiers
@@ -612,7 +636,7 @@ export async function makeNetwork<
             error: MakeNetworkErrorType.DUPLICATE_EDGE_ID,
             source: [data, previous],
             message:
-              "Two edges have the same Identifier. This overrides the previous edge discovered"
+              "Two edges have the same Identifier. This overrides the previous edge discovered",
           });
 
           // Remove the previous edge from the network
@@ -632,11 +656,12 @@ export async function makeNetwork<
     }
   }
 
-  // In aggregation mode for edges, we have one final pass: analyze all of the partial edges we have accumulated and
-  // determine which ones are valid edges. We will error on edges partially created but do not properly represent a
-  // connection
+  // In aggregation mode for edges, we have one final pass: analyze all of the
+  // partial edges we have accumulated and determine which ones are valid edges.
+  // We will error on edges partially created that do not properly represent a
+  // connection within the network
   if (aggregateResults) {
-    partialEdgeMap.forEach(pair => {
+    partialEdgeMap.forEach((pair) => {
       const edge = pair[0];
       const data = pair[1];
 
@@ -645,7 +670,7 @@ export async function makeNetwork<
         makeError(suppress, errors, {
           error: MakeNetworkErrorType.BAD_ID,
           source: data,
-          message: "An edge was generated that has an invalid ID"
+          message: "An edge was generated that has an invalid ID",
         });
 
         return;
@@ -666,7 +691,7 @@ export async function makeNetwork<
               ? "Could not find node a for this edge"
               : !b
               ? "Could not find node b for this edge"
-              : "Error"
+              : "Error",
         });
 
         return;
@@ -679,7 +704,7 @@ export async function makeNetwork<
         b: edge.b,
         atob: edge.atob || [],
         btoa: edge.btoa || [],
-        meta: edge.meta
+        meta: edge.meta,
       };
 
       // Add the new edge to the network

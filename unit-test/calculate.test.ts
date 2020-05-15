@@ -65,7 +65,9 @@ describe("Calculate", () => {
 
   it("Should retrieve an edge", async () => {
     const network = await randomNetwork(WORDS, 10, 100);
-    let edge = getEdge(network, network.nodes[5], network.nodes[6]);
+    const a = network.nodes[5];
+    const b = a.in[0].a;
+    let edge = getEdge(network, a, b);
     assert(edge);
     edge = getEdge(network, network.nodes[5], {
       id: 2819382,

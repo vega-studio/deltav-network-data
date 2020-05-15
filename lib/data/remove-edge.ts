@@ -59,6 +59,6 @@ export function removeEdge<TNodeMeta, TEdgeMeta>(
 
   return {
     edges: removedEdges,
-    errors: errors.size > 0 ? errors : null
+    errors: errors.size > 0 ? errors : null,
   };
 }

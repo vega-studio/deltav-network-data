@@ -66,6 +66,6 @@ export function removeNode<TNodeMeta, TEdgeMeta>(
   return {
     nodes: removedNodes,
     edges: removedEdges,
-    errors: errors.size > 0 ? errors : null
+    errors: errors.size > 0 ? errors : null,
   };
 }

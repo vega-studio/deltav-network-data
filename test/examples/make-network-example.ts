@@ -7,7 +7,7 @@ import {
   makeNetwork,
   maxWeight,
   randomEdges,
-  randomNodes
+  randomNodes,
 } from "../../lib";
 import { nodeWeightRange } from "../../lib/calculate/node-weight-range";
 import { WORDS } from "../data/word-list";
@@ -27,33 +27,33 @@ export async function makeNetworkExample() {
     edgeData: edges,
     nodeData: nodes,
 
-    nodeId: row => row.UID || "",
-    edgeId: row => row.UID || "",
+    nodeId: (row) => row.UID || "",
+    edgeId: (row) => row.UID || "",
 
-    nodeMeta: row => ({
+    nodeMeta: (row) => ({
       name: row.name,
       shape: new CircleInstance({
         radius: 1,
         color: [1, 1, 1, 1],
-        center: [0, 0]
-      })
+        center: [0, 0],
+      }),
     }),
 
-    edgeMeta: row => ({
+    edgeMeta: (row) => ({
       name: row.name,
       shape: new EdgeInstance({
         start: [0, 0],
         end: [0, 0],
         startColor: [1, 1, 1, 1],
         endColor: [1, 1, 1, 1],
-        thickness: [1, 1]
-      })
+        thickness: [1, 1],
+      }),
     }),
 
-    edgeA: row => row.UID_A || "",
-    edgeB: row => row.UID_B || "",
-    edgeValues: row => ({ ab: row.numMetric, ba: row.numMetric }),
-    nodeValues: row => row.numMetric
+    edgeA: (row) => row.UID_A || "",
+    edgeB: (row) => row.UID_B || "",
+    edgeValues: (row) => ({ ab: row.numMetric, ba: row.numMetric }),
+    nodeValues: (row) => row.numMetric,
   });
 
   // Store maps of our shapes we will generate to the network objects they represent
@@ -69,12 +69,10 @@ export async function makeNetworkExample() {
   const box = container.getBoundingClientRect();
   const size = [box.width, box.height] || [100, 100];
   // Create a scale that maps our weights to a radius to apply to the nodes
-  const radiusScale = scaleLinear()
-    .domain(weightRange)
-    .range([2, 5]);
+  const radiusScale = scaleLinear().domain(weightRange).range([2, 5]);
 
   // Position and size our nodes
-  network.nodes.forEach(n => {
+  network.nodes.forEach((n) => {
     if (!n.meta) return;
     const circle = n.meta.shape;
     circle.radius = radiusScale(maxWeight(n.value));
@@ -82,7 +80,7 @@ export async function makeNetworkExample() {
       random(200) / 255,
       (random(200) + 55) / 255,
       (random(200) + 55) / 255,
-      1
+      1,
     ];
     circle.center = [random(size[0]), random(size[1])];
 
@@ -91,7 +89,7 @@ export async function makeNetworkExample() {
   });
 
   // Position our edges
-  network.edges.forEach(e => {
+  network.edges.forEach((e) => {
     if (!e.meta) return;
     const a = e.a.meta?.shape;
     const b = e.b.meta?.shape;
@@ -119,13 +117,13 @@ export async function makeNetworkExample() {
       const box = container.getBoundingClientRect();
       const size = [box.width, box.height] || [100, 100];
 
-      network.nodes.forEach(n => {
+      network.nodes.forEach((n) => {
         if (!n.meta) return;
         const circle = n.meta.shape;
         circle.center = [random(size[0]), random(size[1])];
       });
 
-      network.edges.forEach(e => {
+      network.edges.forEach((e) => {
         if (!e.meta) return;
         const a = e.a.meta?.shape;
         const b = e.b.meta?.shape;
@@ -144,22 +142,22 @@ export async function makeNetworkExample() {
     container,
     data: {
       edges: edgeShapes,
-      circles: circleShapes
+      circles: circleShapes,
     },
     onMouseOver: {
-      circles: info => {
+      circles: (info) => {
         info.instances.forEach((c: CircleInstance) => (c.radius = 10));
       },
 
-      edges: info => {
+      edges: (info) => {
         info.instances.forEach((e: EdgeInstance) => {
           e.startColor = [1, 1, 1, 0.4];
           e.endColor = [1, 1, 1, 0.4];
         });
-      }
+      },
     },
     onMouseOut: {
-      circles: info => {
+      circles: (info) => {
         info.instances.forEach((c: CircleInstance) => {
           const node = shapeToNode.get(c);
           if (!node) return;
@@ -167,7 +165,7 @@ export async function makeNetworkExample() {
         });
       },
 
-      edges: info => {
+      edges: (info) => {
         info.instances.forEach((edge: EdgeInstance) => {
           const e = shapeToEdge.get(edge);
           if (!e) return;
@@ -179,7 +177,7 @@ export async function makeNetworkExample() {
           edge.startColor[3] = 0.2;
           edge.endColor[3] = 0.2;
         });
-      }
-    }
+      },
+    },
   });
 }

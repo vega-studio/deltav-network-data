@@ -13,6 +13,6 @@ export function cloneEdge<TNodeMeta, TEdgeMeta>(
     b: a.b,
     atob: Array.isArray(a.atob) ? a.atob.slice(0) : a.atob,
     btoa: Array.isArray(a.btoa) ? a.btoa.slice(0) : a.btoa,
-    meta: a.meta
+    meta: a.meta,
   };
 }

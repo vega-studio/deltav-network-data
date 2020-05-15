@@ -1000,7 +1000,7 @@ export const WORDS = [
   "you",
   "young",
   "your",
-  "yourself"
+  "yourself",
 ];
 
 export const randWord = (rand: (v: number) => number) =>

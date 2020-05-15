@@ -252,7 +252,8 @@ describe("Edit Network", () => {
         atob: 10,
         btoa: 20,
       },
-      // This edge should error as it's b references something not within the network
+      // This edge should error as it's b references something not within the
+      // network
       {
         id: 1005,
         a: node,

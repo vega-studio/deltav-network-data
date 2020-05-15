@@ -3,7 +3,8 @@ import { makeList } from "../util/make-list";
 import { addToMapOfMaps } from "../util/map-of-maps";
 
 /**
- * This contains the information to see which edges were successfully added to the network
+ * This contains the information to see which edges were successfully added to
+ * the network
  */
 export interface IAddEdgeResult<TNodeMeta, TEdgeMeta> {
   /** Successfully added edges */
@@ -13,16 +14,19 @@ export interface IAddEdgeResult<TNodeMeta, TEdgeMeta> {
 }
 
 /**
- * Adds an edge to the network and ensures it updates the associated nodes and lookups. The ends of the edge MUST
+ * Adds an edge to the network and ensures it updates the associated nodes and
+ * lookups. The ends of the edge MUST
  * be within the network at the time of executing this method.
  *
- * Provide addedEdges to this method to prevent errors from being reported when multiple similar operations are
+ * Provide addedEdges to this method to prevent errors from being reported when
+ * multiple similar operations are
  * executed.
  *
  * @param network The network data to add the edges into
  * @param edges The edge or list of edges to add into the network
- * @param addedEdges A list of edges that have already been added. This is a context used during add operations to
- *                   prevent infinite loops and ensure an edge is only added once.
+ * @param addedEdges A list of edges that have already been added. This is a
+ *                   context used during add operations to prevent infinite
+ *                   loops and ensure an edge is only added once.
  * @param edgeErrors Provides an output set to merge errors for edges into
  */
 export function addEdge<TNodeMeta, TEdgeMeta>(
@@ -44,7 +48,8 @@ export function addEdge<TNodeMeta, TEdgeMeta>(
 
     // We do not perform an add if the edge id is already a part of the network
     if (network.edgeMap.has(edge.id)) {
-      // If this was an edge added from processing added edges then this is not an error
+      // If this was an edge added from processing added edges then this is not
+      // an error
       if (!addedEdges.has(edge)) {
         errors.add(edge);
       }
@@ -52,7 +57,8 @@ export function addEdge<TNodeMeta, TEdgeMeta>(
       continue;
     }
 
-    // If the network does not have the edge's a or b nodes, we can not add the edge in
+    // If the network does not have the edge's a or b nodes, we can not add the
+    // edge in
     if (!network.nodeMap.has(edge.a.id) || !network.nodeMap.has(edge.b.id)) {
       errors.add(edge);
       continue;
@@ -75,6 +81,6 @@ export function addEdge<TNodeMeta, TEdgeMeta>(
 
   return {
     edges: addedEdges,
-    errors: errors.size > 0 ? errors : null
+    errors: errors.size > 0 ? errors : null,
   };
 }

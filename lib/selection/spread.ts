@@ -68,7 +68,7 @@ export enum SpreadLayerPriority {
    * When this hits a visited node of another spread operation, it will immediately cancel the spread operations
    * associated with that node.
    */
-  TERMINATES_OTHERS
+  TERMINATES_OTHERS,
 }
 
 /**
@@ -164,12 +164,12 @@ export function spread<TNodeMeta, TEdgeMeta>({
   startNodes,
   results: sendResults,
   excludeSameDepthEdges,
-  keepPath
+  keepPath,
 }: ISpreadOptions<TNodeMeta, TEdgeMeta>): ISpreadState<TNodeMeta, TEdgeMeta> {
   // The current state of this spread operation
   const state: ISpreadState<TNodeMeta, TEdgeMeta> = {
     visitedNodes: new Set(),
-    visitedEdges: new Set()
+    visitedEdges: new Set(),
   };
 
   // Make our initial processing queue containing all of our initial nodes from which we'll spread.
@@ -187,7 +187,7 @@ export function spread<TNodeMeta, TEdgeMeta>({
     const response = await sendResults({
       nodes: toProcess,
       edges: [],
-      path: keepPath ? path : undefined
+      path: keepPath ? path : undefined,
     });
 
     // Analyze the response for feedback on what to do next
@@ -228,7 +228,7 @@ export function spread<TNodeMeta, TEdgeMeta>({
       const siblings = neighbors({
         node,
         exclude: state.visitedNodes,
-        includeEdgeToExcludedNode: !excludeSameDepthEdges
+        includeEdgeToExcludedNode: !excludeSameDepthEdges,
       });
 
       // Add those neighbors into our next processing queue
@@ -257,7 +257,7 @@ export function spread<TNodeMeta, TEdgeMeta>({
     const response = await sendResults({
       nodes: toProcess,
       edges,
-      path: keepPath ? path : undefined
+      path: keepPath ? path : undefined,
     });
 
     // Analyze the response for feedback on what to do next

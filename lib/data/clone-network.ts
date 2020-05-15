@@ -13,7 +13,7 @@ export function cloneNetwork<TNodeMeta, TEdgeMeta>(
   const nodeMap = new Map();
 
   // Clone all nodes
-  const nodes = network.nodes.map(n => {
+  const nodes = network.nodes.map((n) => {
     const node = cloneNode(n);
     nodeMap.set(node.id, node);
 
@@ -21,7 +21,7 @@ export function cloneNetwork<TNodeMeta, TEdgeMeta>(
   });
 
   // Clone all edges
-  const edges = network.edges.map(e => {
+  const edges = network.edges.map((e) => {
     const edge = cloneEdge(e);
     edgeMap.set(edge.id, edge);
 
@@ -29,13 +29,13 @@ export function cloneNetwork<TNodeMeta, TEdgeMeta>(
   });
 
   // Shift all edge references to new Edge Object references
-  nodes.forEach(node => {
-    node.in = node.in.map(edge => edgeMap.get(edge.id)).filter(Boolean);
-    node.out = node.out.map(edge => edgeMap.get(edge.id)).filter(Boolean);
+  nodes.forEach((node) => {
+    node.in = node.in.map((edge) => edgeMap.get(edge.id)).filter(Boolean);
+    node.out = node.out.map((edge) => edgeMap.get(edge.id)).filter(Boolean);
   });
 
   // Shift all edge node references to new Node Object references
-  edges.forEach(edge => {
+  edges.forEach((edge) => {
     edge.a = nodeMap.get(edge.a.id);
     edge.b = nodeMap.get(edge.b.id);
   });
@@ -54,6 +54,6 @@ export function cloneNetwork<TNodeMeta, TEdgeMeta>(
     edgeMap,
     edges,
     nodeMap,
-    nodes
+    nodes,
   };
 }

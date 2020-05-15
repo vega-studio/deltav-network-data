@@ -12,6 +12,6 @@ export function emptyNetwork<TNodeMeta, TEdgeMeta>(): INetworkData<
     nodeMap: new Map(),
     edges: [],
     edgeMap: new Map(),
-    atobMap: new Map()
+    atobMap: new Map(),
   };
 }

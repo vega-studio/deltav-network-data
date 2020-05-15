@@ -84,7 +84,7 @@ export function addNode<TNodeMeta, TEdgeMeta>(
     edges: addedEdges,
     errors: {
       nodes: errors,
-      edges: edgeErrors
-    }
+      edges: edgeErrors,
+    },
   };
 }
