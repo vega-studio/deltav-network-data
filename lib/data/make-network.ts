@@ -3,19 +3,23 @@ import {
   Accessor,
   Identifier,
   IEdge,
+  IMakeNetworkError,
+  IMakeNetworkResult,
   INetworkData,
   INode,
   isDefined,
+  isEdgeWeights,
   isIdentifier,
   isWeightNumber,
   isWeights,
+  MakeNetworkErrorType,
+  PartialObject,
   Weights,
 } from "../types";
 import { access } from "../util/access";
+import { makeError } from "../util/make-error";
 import { addToMapOfMaps } from "../util/map-of-maps";
 import { removeEdge } from "./remove-edge";
-
-type PartialObject = { [key: string]: any };
 
 /**
  * These are the modes available for the aggregation procedure.
@@ -53,8 +57,8 @@ export interface IMakeNetworkOptions<
   TEdgeSource,
   TNodeMeta,
   TEdgeMeta,
-  TNodePartial extends PartialObject,
-  TEdgePartial extends PartialObject
+  TNodeInfo extends PartialObject,
+  TEdgeInfo extends PartialObject
 > {
   /**
    * Some datasets spread out the total configuration of a node or edge across
@@ -89,7 +93,7 @@ export interface IMakeNetworkOptions<
    * or a callback
    *  (dataRow) => dataRow.property
    */
-  edgeA: Accessor<TEdgeSource, Identifier, TEdgePartial>;
+  edgeA: Accessor<TEdgeSource, Identifier, TEdgeInfo>;
   /**
    * The accessor to retrieve the id of the node the edge terminates at.
    * Provides data provided when the identifier was found.
@@ -99,7 +103,7 @@ export interface IMakeNetworkOptions<
    * or a callback
    *  (dataRow) => dataRow.property
    */
-  edgeB: Accessor<TEdgeSource, Identifier, TEdgePartial>;
+  edgeB: Accessor<TEdgeSource, Identifier, TEdgeInfo>;
   /** The data that needs to be converted to edges */
   edgeData: DataProvider<TEdgeSource>;
   /**
@@ -115,18 +119,13 @@ export interface IMakeNetworkOptions<
    *
    * (dataRow) => dataRow.property
    */
-  edgeId: Accessor<
-    TEdgeSource,
-    | Identifier
-    | Identifier[],
-    never
-  >;
+  edgeId: Accessor<TEdgeSource, Identifier | Identifier[], never>;
   /**
    * After identifiers are created, this will associate some form of information
    * with the identifier provided. This information gets passed into the
    * accessors of the other edge properties.
    */
-  edgeInfoForId?(id: Identifier, idIndex: number, row: TEdgeSource): TEdgePartial;
+  edgeInfo?(id: Identifier, idIndex: number, row: TEdgeSource): TEdgeInfo;
   /**
    * The accessor to retrieve all properties expected in the meta data of the
    * edge. Provides data provided when the identifier was found.
@@ -134,7 +133,7 @@ export interface IMakeNetworkOptions<
    * Accessors are either: "a property key as a string" or a callback (dataRow)
    *  => dataRow.property
    */
-  edgeMeta: Accessor<TEdgeSource, TEdgeMeta, TEdgePartial>;
+  edgeMeta: Accessor<TEdgeSource, TEdgeMeta, TEdgeInfo>;
   /**
    * The accessor to retrieve the Weight values for an edge.
    * Provides data provided when the identifier was found.
@@ -147,7 +146,7 @@ export interface IMakeNetworkOptions<
   edgeValues?: Accessor<
     TEdgeSource,
     { ab?: Weights; ba?: Weights } | undefined,
-    TEdgePartial
+    TEdgeInfo
   >;
   /**
    * The data that needs to be converted to nodes. This can be provided as a
@@ -164,18 +163,13 @@ export interface IMakeNetworkOptions<
    * Accessors are either: "a property key as a string" or a callback (dataRow)
    *  => dataRow.property
    */
-  nodeId: Accessor<
-    TNodeSource,
-    | Identifier
-    | Identifier[],
-    never
-  >;
+  nodeId: Accessor<TNodeSource, Identifier | Identifier[], never>;
   /**
    * After identifiers are created, this will associate some form of information
    * with the identifier provided. This information gets passed into the
    * accessors of the other node properties.
    */
-  nodeInfoForId?(id: Identifier, idIndex: number, row: TNodeSource): TNodePartial;
+  nodeInfo?(id: Identifier, idIndex: number, row: TNodeSource): TNodeInfo;
   /**
    * The accessor to retrieve all properties expected in the meta data of the
    * node. Provides data provided when the identifier was found.
@@ -183,7 +177,7 @@ export interface IMakeNetworkOptions<
    * Accessors are either: "a property key as a string" or a callback (dataRow)
    *  => dataRow.property
    */
-  nodeMeta: Accessor<TNodeSource, TNodeMeta, TNodePartial>;
+  nodeMeta: Accessor<TNodeSource, TNodeMeta, TNodeInfo>;
   /**
    * The accessor to retrieve the Weight values for a node.
    * Provides data provided when the identifier was found.
@@ -193,70 +187,12 @@ export interface IMakeNetworkOptions<
    * or a callback
    *  (dataRow) => dataRow.property
    */
-  nodeValues?: Accessor<TNodeSource, Weights | undefined, TNodePartial>;
+  nodeValues?: Accessor<TNodeSource, Weights | undefined, TNodeInfo>;
   /**
    * Supply this with a list of errors you wish to ignore. For instance, in some
    * cases, it may be necessary to have node's with duplicate identifiers.
    */
   suppressErrors?: MakeNetworkErrorType[];
-}
-
-/**
- * These are the type of errors you will encounter while processing the data.
- */
-export enum MakeNetworkErrorType {
-  /** An identifier happened that is invalid */
-  BAD_ID,
-  /**
-   * A lookup for a node happened, and there was no node found with the
-   * calculated identifier
-   */
-  NODE_NOT_FOUND,
-  /**
-   * Two nodes were found with the same identifier. The most recent node will
-   * be the node preserved
-   */
-  DUPLICATE_NODE_ID,
-  /**
-   * Two edges were found with the same identifier. The most recent edge will
-   * be the node preserved
-   */
-  DUPLICATE_EDGE_ID,
-  /** System failure made an unknown type error */
-  UNKNOWN,
-}
-
-/**
- * This is the structure for an error message from the system.
- */
-export interface IMakeNetworkError<T, U> {
-  /** The error type discovered */
-  error: MakeNetworkErrorType;
-  /** The data source items that were the culprits in causing the error */
-  source: T | U | T[] | U[] | (T | U)[];
-  /** A readable message to explain the cause of the error */
-  message: string;
-}
-
-/**
- * This is the expected result output from the make network operation.
- */
-export interface IMakeNetworkResult<T, U, TNodeMeta, TEdgeMeta>
-  extends INetworkData<TNodeMeta, TEdgeMeta> {
-  /** All errors discovered while processing the data from old to new format */
-  errors: IMakeNetworkError<T, U>[] | null;
-}
-
-/**
- * Handles generating and suppressing an error.
- */
-function makeError<T, U>(
-  suppress: Set<MakeNetworkErrorType>,
-  errors: IMakeNetworkError<T, U>[],
-  error: IMakeNetworkError<T, U>
-) {
-  if (suppress.has(error.error)) return;
-  errors.push(error);
 }
 
 /**
@@ -358,12 +294,12 @@ export async function makeNetwork<
     edgeB,
     edgeData,
     edgeId,
-    edgeInfoForId,
+    edgeInfo: edgeInfoForId,
     edgeMeta,
     edgeValues,
     nodeData,
     nodeId,
-    nodeInfoForId,
+    nodeInfo: nodeInfoForId,
     nodeMeta,
     nodeValues,
     suppressErrors,
@@ -417,9 +353,7 @@ export async function makeNetwork<
 
       if (nodeInfoForId) {
         infos.push(nodeInfoForId(check, k, data));
-      }
-
-      else {
+      } else {
         infos.push(void 0);
       }
     }
@@ -515,9 +449,7 @@ export async function makeNetwork<
 
       if (edgeInfoForId) {
         infos.push(edgeInfoForId(check, k, data));
-      }
-
-      else {
+      } else {
         infos.push(void 0);
       }
     }
@@ -533,13 +465,7 @@ export async function makeNetwork<
       const nodeB = nodeMap.get(b);
 
       // Retrieve the values this edge will have assigned to it
-      const values = access(
-        data,
-        edgeValues,
-        (val: any): val is { ab: Weights; ba: Weights } =>
-          val && isWeights(val.ab) && isWeights(val.ba),
-        info
-      ) || {
+      const values = access(data, edgeValues, isEdgeWeights, info) || {
         ab: [],
         ba: [],
       };

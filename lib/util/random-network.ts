@@ -1,5 +1,5 @@
-import { makeNetwork } from "../data";
 import { combineSharedEdges } from "../data/combine-shared-edges";
+import { makeNetwork } from "../data/make-network";
 import { exclusiveRandItems } from "./random";
 const randomSeed = require("random-seed");
 
@@ -80,14 +80,18 @@ export function randomNodes(words: string[], count: number) {
  * This generates random node data that has the connection information in the
  * node data and NOT in a seperate edge data list.
  */
-export function randomNodesWithEdges(words: string[], count: number, edgesPerNode: number) {
+export function randomNodesWithEdges(
+  words: string[],
+  count: number,
+  edgesPerNode: number
+) {
   const rand = randomSeed.create("nodes-with-edges");
   const nodes: IRandomNodeWithEdge[] = this.randomNodes(words, count);
 
   for (let i = 0, iMax = nodes.length; i < iMax; ++i) {
     const node = nodes[i];
     const items = exclusiveRandItems(rand, nodes, edgesPerNode);
-    node.siblings = items?.map(node => node.UID || -1) || [];
+    node.siblings = items?.map((node) => node.UID || -1) || [];
   }
 
   return nodes;

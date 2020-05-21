@@ -1,4 +1,5 @@
-import { INetworkData, INode } from "../types";
+import { IEdge, INetworkData, INode } from "../types";
+import { emptyNetwork } from "./empty-network";
 
 /**
  * This method will calculate the intersection of elements between two networks. This uses identifiers and not object
@@ -19,17 +20,28 @@ import { INetworkData, INode } from "../types";
  *                         the edges how you see fit and return the merged edge.
  */
 export function intersection<TNodeMeta, TEdgeMeta>(
-  _a: INetworkData<TNodeMeta, TEdgeMeta>,
-  _b: INetworkData<TNodeMeta, TEdgeMeta>,
-  _nodeIntersection: (
+  a: INetworkData<TNodeMeta, TEdgeMeta>,
+  b: INetworkData<TNodeMeta, TEdgeMeta>,
+  nodeIntersection: (
     nodeA: INode<TNodeMeta, TEdgeMeta>,
     nodeB: INode<TNodeMeta, TEdgeMeta>
   ) => INode<TNodeMeta, TEdgeMeta>,
-  _edgeIntersection: (
-    nodeA: INode<TNodeMeta, TEdgeMeta>,
-    nodeB: INode<TNodeMeta, TEdgeMeta>
-  ) => INode<TNodeMeta, TEdgeMeta>
+  edgeIntersection: (
+    edgeA: IEdge<TNodeMeta, TEdgeMeta>,
+    edgeB: IEdge<TNodeMeta, TEdgeMeta>
+  ) => IEdge<TNodeMeta, TEdgeMeta>
 ): INetworkData<TNodeMeta, TEdgeMeta> | null {
+  const network: INetworkData<TNodeMeta, TEdgeMeta> = emptyNetwork();
+
+  for (let i = 0, iMax = a.nodes.length; i < iMax; ++i) {
+    const nodeA = a.nodes[i];
+    const nodeB = b.nodeMap.get(nodeA.id);
+
+    if (nodeB) {
+
+    }
+  }
+
   // TODO
   return null;
 }

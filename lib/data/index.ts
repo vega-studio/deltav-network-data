@@ -9,3 +9,4 @@ export * from "./remove-node";
 export * from "./network-set-operations";
 export * from "./empty-network";
 export * from "./combine-shared-edges";
+export * from "./convert-network";

@@ -749,7 +749,7 @@ describe("Make network - Aggregation with single row source", () => {
 
       edgeId: (edgeRow) =>
         edgeRow.siblings.map((neighbor) => `${edgeRow.UID}_${neighbor}`),
-      edgeInfoForId: (_id: Identifier, idIndex: number) => ({
+      edgeInfo: (_id: Identifier, idIndex: number) => ({
         siblingIndex: idIndex,
       }),
       edgeMeta: (edgeRow) => edgeRow,
