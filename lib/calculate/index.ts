@@ -5,5 +5,4 @@ export * from "./has-node";
 export * from "./max-weight";
 export * from "./min-weight";
 export * from "./node-weight-range";
-export * from "./path";
 export * from "./weight-at-index";

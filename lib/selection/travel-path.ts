@@ -1,4 +1,4 @@
-import { getEdge } from "../calculate";
+import { getEdge } from "../calculate/get-edge";
 import { IEdge, INetworkData, INode, ReversePathMap } from "../types";
 
 /**

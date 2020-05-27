@@ -136,7 +136,7 @@ export async function renderNetwork(
     onMouseOver: {
       circles: (info) => {
         info.instances.forEach((c: CircleInstance) => {
-          console.log(shapeToNode.get(c));
+          console.warn(shapeToNode.get(c));
           c.radius = 10;
         });
       },

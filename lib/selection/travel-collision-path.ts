@@ -1,4 +1,4 @@
-import { getEdge } from "../calculate";
+import { getEdge } from "../calculate/get-edge";
 import { IEdge, INode, isEdge, isNode, ReversePathMap } from "../types";
 import { travelPath } from "./travel-path";
 

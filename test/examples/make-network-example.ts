@@ -113,6 +113,8 @@ export async function makeNetworkExample() {
           );
         });
       }
+
+      return;
     }
   );
 }
