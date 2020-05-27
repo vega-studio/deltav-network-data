@@ -239,12 +239,10 @@ describe("Z Ripple Search", () => {
       },
       async (result) => {
         if (result.nodeCollisions && result.nodeCollisions.size > 0) {
-          console.log("NODE", result.nodeCollisions.size);
           pass = true;
         }
 
         if (result.edgeCollisions && result.edgeCollisions.size > 0) {
-          console.log("EDGE", result.edgeCollisions.size);
           pass = true;
         }
       }
