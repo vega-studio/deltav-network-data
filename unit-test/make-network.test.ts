@@ -22,10 +22,15 @@ import {
 } from "../lib";
 import { WORDS } from "../test/data/word-list";
 
-const nodes = randomNodes(WORDS, 100);
-const edges = randomEdges(WORDS, nodes, 1000);
+// Convenience types to make the code a little easier to read
 type Meta = { name: string };
 type Network = IMakeNetworkResult<IRandomNode, IRandomEdge, Meta, Meta>;
+
+// We create a list of random nodes and edges that are equivalent to the nodes
+// and edges generated in the randomized network so we can compare the results
+// of the network to a flattened list.
+const nodes = randomNodes(WORDS, 100);
+const edges = randomEdges(WORDS, nodes, 1000);
 
 const network: Network = Object.assign(emptyNetwork<Meta, Meta>(), {
   errors: null,
@@ -257,7 +262,13 @@ const shouldHaveValidNodeReferencesAndIdentifiers = (
 
 describe("Make Network", () => {
   before(async () => {
-    const net = await randomNetwork(WORDS, 100, 1000);
+    const net = await randomNetwork(
+      WORDS,
+      100,
+      1000,
+      (n) => n,
+      (e) => e
+    );
 
     // Assign the properties to our existing object so we keep the same
     // reference in the tests.

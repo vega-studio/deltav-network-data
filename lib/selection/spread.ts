@@ -126,46 +126,59 @@ export interface ISpreadOptions<TNodeMeta, TEdgeMeta> {
 }
 
 /**
- * This method is the foundation of almost all operations in the library. It's purpose is to take input nodes and gather
- * neighbors and then gather their neighbors and then gather their neighbors etc. This is grand for many normal network
- * data algorithms.
+ * This method is the foundation of almost all operations in the library. It's
+ * purpose is to take input nodes and gather neighbors and then gather their
+ * neighbors and then gather their neighbors etc. This is grand for many normal
+ * network data algorithms.
  *
- * However, this concept of spreading has MANY interesting ways to provide VERY interesting feedback!
+ * This concept of spreading has MANY interesting ways to provide VERY
+ * interesting feedback!
  *
  * - Spread from multiple start points
- * - Determine if you're interested when the spreading starts hitting overlapped points
+ * - Determine if you're interested when the spreading starts hitting overlapped
+ *   points
  * - Spread and keep a track record on how to get back to the start point(s)
  * - Retrieve edges while spreading
  * - Retrieve edges only going to points that have not been spread to
  * - Spread up to a certain depth
  * - Spread and determine overlap between spreading between multiple points
  *
- * Spreading also can have actions associated with it. Perhaps you want to run multiple spread operations and layer them
- * over each other! Perhaps you want to utilize some processing power!
+ * Spreading also can have actions associated with it. Perhaps you want to run
+ * multiple spread operations and layer them over each other! Perhaps you want
+ * to utilize some processing power!
  *
  * - Async or Sync spreading
  * - With multiple points: spread with multiple threads!
  * - Spread on an animation loop!
  * - Limit gather operations per frame!
  *
- * Spreading has many technical challenges as well as it needs to handle a potential 100k+ nodes and millions of edges.
- * As we spread we have to smartly keep tracking information down as much as possible.
+ * Spreading has many technical challenges as well as it needs to handle a
+ * potential 100k+ nodes and millions of edges. As we spread we have to smartly
+ * keep tracking information down as much as possible.
  *
- * Perhaps you have a higher understanding of your network data. You may be able to aid the spread operation to spread
- * with a goal in mind. Perhaps you're searching for a node and your network is laid out in a way that you can optimize
- * which direction the spread operation should traverse. This spread operator will also provide a means to help it
- * along.
+ * Perhaps you have a higher understanding of your network data. You may be able
+ * to aid the spread operation to spread with a goal in mind. Perhaps you're
+ * searching for a node and your network is laid out in a way that you can
+ * optimize which direction the spread operation should traverse. This spread
+ * operator will also provide a means to help it along.
  *
- * So as can be seen: this is a POWERFUL method. It pins together most of our operations and facilitates many of the
- * algorithms posted here and it also helps with User Experience by breaking up the operation into manageable processing
- * chunks to prevent our RAM from overloading AND prevent our draw loop getting hung up for excessive periods of time.
+ * So as can be seen: this is a POWERFUL method. It pins together most of our
+ * operations and facilitates many of the algorithms posted here and it also
+ * helps with User Experience by breaking up the operation into manageable
+ * processing chunks to prevent our RAM from overloading AND prevent our draw
+ * loop getting hung up for excessive periods of time.
  */
-export function spread<TNodeMeta, TEdgeMeta>({
-  startNodes,
-  results: sendResults,
-  excludeSameDepthEdges,
-  keepPath,
-}: ISpreadOptions<TNodeMeta, TEdgeMeta>): ISpreadState<TNodeMeta, TEdgeMeta> {
+export function spread<TNodeMeta, TEdgeMeta>(
+  options: ISpreadOptions<TNodeMeta, TEdgeMeta>
+): ISpreadState<TNodeMeta, TEdgeMeta> {
+  // This is the options we covered
+  const {
+    startNodes,
+    results: sendResults,
+    excludeSameDepthEdges,
+    keepPath,
+  } = options;
+
   // The current state of this spread operation
   const state: ISpreadState<TNodeMeta, TEdgeMeta> = {
     visitedNodes: new Set(),

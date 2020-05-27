@@ -27,7 +27,13 @@ describe("Calculate", () => {
   let maxW = 100;
 
   before(async () => {
-    network = await randomNetwork(WORDS, 100, 1000);
+    network = await randomNetwork(
+      WORDS,
+      100,
+      1000,
+      (n) => n,
+      (e) => e
+    );
 
     minW = network.nodes.reduce(
       (p, n) => Math.min(p, n.meta?.numMetric || Number.MAX_SAFE_INTEGER),
@@ -64,12 +70,31 @@ describe("Calculate", () => {
   });
 
   it("Should retrieve an edge", async () => {
-    const network = await randomNetwork(WORDS, 10, 100);
+    const network = await randomNetwork(
+      WORDS,
+      10,
+      100,
+      (n) => n,
+      (e) => e
+    );
     const a = network.nodes[5];
     const b = a.in[0].a;
-    let edge = getEdge(network, a, b);
+    let edge = getEdge(a, b, network);
     assert(edge);
-    edge = getEdge(network, network.nodes[5], {
+    edge = getEdge(a, b);
+    assert(edge);
+    edge = getEdge(
+      network.nodes[5],
+      {
+        id: 2819382,
+        out: [],
+        in: [],
+        value: -1,
+      },
+      network
+    );
+    assert(!edge);
+    edge = getEdge(network.nodes[5], {
       id: 2819382,
       out: [],
       in: [],
@@ -79,7 +104,13 @@ describe("Calculate", () => {
   });
 
   it("Should detect if the node is in the network", async () => {
-    const network = await randomNetwork(WORDS, 10, 100);
+    const network = await randomNetwork(
+      WORDS,
+      10,
+      100,
+      (n) => n,
+      (e) => e
+    );
     assert(hasNode(network, network.nodes));
     assert(hasNode(network, network.nodes[3]));
     assert(!hasNode(network, { id: 2819382, out: [], in: [], value: -1 }));

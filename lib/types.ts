@@ -99,6 +99,15 @@ export interface IEdge<TNodeMeta, TEdgeMeta> {
 }
 
 /**
+ * Typeguard to distinguish between Edges vs Nodes
+ */
+export function isEdge<TNodeMeta, TEdgeMeta>(
+  val?: INode<TNodeMeta, TEdgeMeta> | IEdge<TNodeMeta, TEdgeMeta>
+): val is IEdge<TNodeMeta, TEdgeMeta> {
+  return val && (val as any).a && (val as any).b;
+}
+
+/**
  * An edge who has it's structure locked, but it's values are modifiable.
  */
 export interface ILockedEdge<TNodeMeta, TEdgeMeta> {
@@ -141,6 +150,15 @@ export interface INode<TNodeMeta, TEdgeMeta> {
   out: IEdge<TNodeMeta, TEdgeMeta>[];
   /** The values that this node harbors */
   value: Weights;
+}
+
+/**
+ * Typeguard to distinguish between Edges vs Nodes
+ */
+export function isNode<TNodeMeta, TEdgeMeta>(
+  val?: INode<TNodeMeta, TEdgeMeta> | IEdge<TNodeMeta, TEdgeMeta>
+): val is INode<TNodeMeta, TEdgeMeta> {
+  return val && (val as any).in && (val as any).out;
 }
 
 /**
@@ -220,3 +238,26 @@ export interface IMakeNetworkResult<T, U, TNodeMeta, TEdgeMeta>
   /** All errors discovered while processing the data from old to new format */
   errors: IMakeNetworkError<T, U>[] | null;
 }
+
+/**
+ * This decribes directionality of how an edge relates to a node. Either
+ * outgoing where the edge's a === the node or incoming where the
+ * edge's b === the node.
+ */
+export enum FlowDirection {
+  BOTH = 0,
+  OUT,
+  IN,
+}
+
+/**
+ * This depicts paths that are generated via chained nodes. The Path is built in
+ * reverse, so getting the next node from the map will be the previous step in
+ * the path. If you get a node from the map and it returns undefined, the input
+ * node is the beginning of the path or is not a part of any known path in this
+ * map object.
+ */
+export type ReversePathMap<TNodeMeta, TEdgeMeta> = Map<
+  INode<TNodeMeta, TEdgeMeta>,
+  INode<TNodeMeta, TEdgeMeta>
+>;

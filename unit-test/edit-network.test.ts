@@ -178,6 +178,76 @@ describe("Edit Network", () => {
     assert(edge.b.in.indexOf(edge) >= 0);
   });
 
+  it("Should remove node and add it back", () => {
+    const net = cloneNetwork(network);
+    const node = randItem(rand, net.nodes);
+    removeNode(net, node);
+
+    const result = addNode(net, node);
+
+    assert(!result.errors.nodes || result.errors.nodes.size <= 0);
+    assert(!result.errors.edges || result.errors.edges.size <= 0);
+    assert(result.nodes.size === 1);
+    assert(result.edges.size === 0);
+
+    // Ensure the node is listed in the network properly
+    assert(net.nodes.indexOf(node) >= 0);
+    assert(net.nodeMap.has(node.id));
+
+    // Make sure the node does not exist within any edges
+    for (let k = 0, kMax = net.edges.length; k < kMax; ++k) {
+      const edge = net.edges[k];
+      assert(edge.a !== node && edge.b !== node);
+    }
+  });
+
+  it("Should remove and edge and add it back", () => {
+    const net = cloneNetwork(network);
+    const edge = randItem(rand, net.edges);
+    const resultRemove = removeEdge(net, edge);
+
+    assert(!resultRemove.errors || resultRemove.errors.size <= 0);
+
+    // We check all removed edges for some assertions as well
+    const edges = Array.from(resultRemove.edges.values());
+    for (let k = 0, kMax = edges.length; k < kMax; ++k) {
+      const edge = edges[k];
+
+      // Ensure all edges removed no longer exists in the list
+      let success = true;
+      for (let i = 0, iMax = net.edges.length; i < iMax; ++i) {
+        const check = net.edges[i];
+
+        if (edge === check) {
+          success = false;
+          break;
+        }
+      }
+
+      assert(success);
+
+      // Ensure the edge is no longer in the edge map
+      assert(!net.edgeMap.get(edge.id));
+      // Ensure the atob mapping for the edge no longer exists
+      assert(!getFromMapOfMaps(net.atobMap, edge.a, edge.b));
+    }
+
+    const resultAdd = addEdge(net, edge);
+
+    // No errors should have happened
+    assert(!resultAdd.errors || resultAdd.errors.size <= 0);
+    assert(resultAdd.edges.size === 1);
+
+    // Make sure the network's lists have registered the edge
+    assert(net.edges.indexOf(edge) >= 0);
+    assert(net.edgeMap.has(edge.id));
+    assert(getFromMapOfMaps(net.atobMap, edge.a, edge.b));
+
+    // Make sure the end nodes for the edge have the edge added to them
+    assert(edge.a.out.indexOf(edge) >= 0);
+    assert(edge.b.in.indexOf(edge) >= 0);
+  });
+
   it("Should NOT add an edge", () => {
     const net = cloneNetwork(network);
     const node: INode<IRandomNode, IRandomEdge> = {

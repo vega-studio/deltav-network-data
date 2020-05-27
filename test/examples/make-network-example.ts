@@ -1,183 +1,118 @@
-import { scaleLinear } from "d3-scale";
-import { add2, CircleInstance, copy4, EdgeInstance, subtract2 } from "deltav";
-import { QuickSurface } from "deltav-quick-surface";
-import {
-  IEdge,
-  INode,
-  makeNetwork,
-  maxWeight,
-  randomEdges,
-  randomNodes,
-} from "../../lib";
-import { nodeWeightRange } from "../../lib/calculate/node-weight-range";
-import { WORDS } from "../data/word-list";
-
-const randomSeed = require("random-seed");
-
-const random = randomSeed.create("test");
-const nodes = randomNodes(WORDS, 50);
-const edges = randomEdges(WORDS, nodes, 100);
+import { copy4, Vec4 } from "deltav";
+import { IEdge, RippleSelect } from "../../lib";
+import { travelCollisionPath } from "../../lib/selection/travel-collision-path";
+import { renderNetwork } from "./render-network";
 
 export async function makeNetworkExample() {
   const container = document.getElementById("make-network-graphics");
   if (!container) return;
+  const network = await renderNetwork(container, 100, 200);
+  if (!network) return;
 
-  // Generate the network data from the raw data we generated.
-  const network = await makeNetwork({
-    edgeData: edges,
-    nodeData: nodes,
+  const ripple = new RippleSelect();
+  const start = network.nodes[0];
+  const allEdges = new Set<IEdge<any, any>>();
+  const startA = network.nodes[0];
+  const startB = network.nodes[37];
 
-    nodeId: (row) => row.UID || "",
-    edgeId: (row) => row.UID || "",
+  const color: Vec4[] = [
+    [1, 1, 1, 1],
+    [0, 0, 1, 1],
+    [0, 0, 1, 1],
+    [0, 0, 1, 1],
+    [0, 0, 1, 1],
+    [0, 0, 1, 0.8],
+    [0, 0, 1, 0.6],
+    [0, 0, 1, 0.4],
+    [0, 0, 1, 0.2],
+    [0, 0, 1, 0.2],
+  ];
 
-    nodeMeta: (row) => ({
-      name: row.name,
-      shape: new CircleInstance({
-        radius: 1,
-        color: [1, 1, 1, 1],
-        center: [0, 0],
-      }),
-    }),
+  await ripple.splash(
+    {
+      startNodes: [startA, startB],
+      includeCollisions: true,
+      includePath: true,
+    },
+    async (result) => {
+      const path = result.path;
+      if (!path) return;
 
-    edgeMeta: (row) => ({
-      name: row.name,
-      shape: new EdgeInstance({
-        start: [0, 0],
-        end: [0, 0],
-        startColor: [1, 1, 1, 1],
-        endColor: [1, 1, 1, 1],
-        thickness: [1, 1],
-      }),
-    }),
-
-    edgeA: (row) => row.UID_A || "",
-    edgeB: (row) => row.UID_B || "",
-    edgeValues: (row) => ({ ab: row.numMetric, ba: row.numMetric }),
-    nodeValues: (row) => row.numMetric,
-  });
-
-  // Store maps of our shapes we will generate to the network objects they represent
-  const shapeToNode = new Map<CircleInstance, INode<any, any>>();
-  const shapeToEdge = new Map<EdgeInstance, IEdge<any, any>>();
-  // Gather our shapes as our data points
-  const circleShapes: CircleInstance[] = [];
-  const edgeShapes: EdgeInstance[] = [];
-
-  // Calculate range of weights on the nodes
-  const weightRange = nodeWeightRange(network);
-  // Get the size of the screen we are about to display in
-  const box = container.getBoundingClientRect();
-  const size = [box.width, box.height] || [100, 100];
-  // Create a scale that maps our weights to a radius to apply to the nodes
-  const radiusScale = scaleLinear().domain(weightRange).range([2, 5]);
-
-  // Position and size our nodes
-  network.nodes.forEach((n) => {
-    if (!n.meta) return;
-    const circle = n.meta.shape;
-    circle.radius = radiusScale(maxWeight(n.value));
-    circle.color = [
-      random(200) / 255,
-      (random(200) + 55) / 255,
-      (random(200) + 55) / 255,
-      1,
-    ];
-    circle.center = [random(size[0]), random(size[1])];
-
-    shapeToNode.set(circle, n);
-    circleShapes.push(circle);
-  });
-
-  // Position our edges
-  network.edges.forEach((e) => {
-    if (!e.meta) return;
-    const a = e.a.meta?.shape;
-    const b = e.b.meta?.shape;
-    if (!a || !b) return;
-
-    const edge = e.meta.shape;
-    edge.start = a.center;
-    edge.end = b.center;
-    edge.control = [add2(edge.start, subtract2(edge.end, edge.start))];
-    edge.startColor = copy4(a.color);
-    edge.endColor = copy4(b.color);
-    edge.startColor[3] = 0.2;
-    edge.endColor[3] = 0.2;
-    edge.thickness = [a.radius / 1.2, b.radius / 1.2];
-
-    shapeToEdge.set(edge, e);
-    edgeShapes.push(edge);
-  });
-
-  // Handle window resizes so our display spans the container still
-  let t = -1;
-  window.addEventListener("resize", () => {
-    clearTimeout(t);
-    t = window.setTimeout(() => {
-      const box = container.getBoundingClientRect();
-      const size = [box.width, box.height] || [100, 100];
-
-      network.nodes.forEach((n) => {
+      result.nodes.forEach((n) => {
         if (!n.meta) return;
-        const circle = n.meta.shape;
-        circle.center = [random(size[0]), random(size[1])];
+        n.meta.shape.color = color[result.depth];
       });
 
-      network.edges.forEach((e) => {
-        if (!e.meta) return;
-        const a = e.a.meta?.shape;
-        const b = e.b.meta?.shape;
-        if (!a || !b) return;
-
-        const edge = e.meta.shape;
-        edge.start = a.center;
-        edge.end = b.center;
-        edge.control = [add2(edge.start, subtract2(edge.end, edge.start))];
+      result.edges.forEach((n) => {
+        if (!n.meta) return;
+        if (result.depth === 1) {
+          n.meta.shape.startColor = copy4(color[0]);
+          n.meta.shape.endColor = copy4(color[0]);
+        } else {
+          n.meta.shape.startColor = copy4(color[result.depth]);
+          n.meta.shape.endColor = copy4(color[result.depth]);
+        }
       });
-    }, 400);
-  });
 
-  // Fire up a surface to render for our data we produced
-  new QuickSurface({
-    container,
-    data: {
-      edges: edgeShapes,
-      circles: circleShapes,
-    },
-    onMouseOver: {
-      circles: (info) => {
-        info.instances.forEach((c: CircleInstance) => (c.radius = 10));
-      },
+      if (result.nodeCollisions) {
+        result.nodeCollisions.forEach((sources, collision) => {
+          // Get all of the nodes prior to the collision and follow them back to
+          // their source.
+          travelCollisionPath(
+            collision,
+            sources,
+            path,
+            (node, step) => {
+              const shape = node.meta?.shape;
+              if (!shape) return;
+              if (step === 0) shape.color = [1, 0, 0, 1];
+              else shape.color = [0, 1, 0, 1];
+              if (result.source?.get(node) === node) shape.color = [1, 1, 1, 1];
+            },
+            (edge) => {
+              const shape = edge.meta?.shape;
+              if (!shape) return;
+              shape.startColor = [0, 1, 0, 1];
+              shape.endColor = [0, 1, 0, 1];
+            }
+          );
+        });
 
-      edges: (info) => {
-        info.instances.forEach((e: EdgeInstance) => {
-          e.startColor = [1, 1, 1, 0.4];
-          e.endColor = [1, 1, 1, 0.4];
-        });
-      },
-    },
-    onMouseOut: {
-      circles: (info) => {
-        info.instances.forEach((c: CircleInstance) => {
-          const node = shapeToNode.get(c);
-          if (!node) return;
-          c.radius = radiusScale(maxWeight(node.value));
-        });
-      },
+        if (result.nodeCollisions.size > 0) {
+          return { stop: true };
+        }
+      }
 
-      edges: (info) => {
-        info.instances.forEach((edge: EdgeInstance) => {
-          const e = shapeToEdge.get(edge);
-          if (!e) return;
-          const a = e.a.meta?.shape;
-          const b = e.b.meta?.shape;
-          if (!a || !b) return;
-          edge.startColor = copy4(a.color);
-          edge.endColor = copy4(b.color);
-          edge.startColor[3] = 0.2;
-          edge.endColor[3] = 0.2;
+      if (result.edgeCollisions && result.edgeCollisions.size > 0) {
+        result.edgeCollisions.forEach((collision) => {
+          // Get all of the nodes prior to the collision and follow them back to
+          // their source.
+          travelCollisionPath(
+            collision,
+            [],
+            path,
+            (node, step) => {
+              const shape = node.meta?.shape;
+              if (!shape) return;
+              if (step === 0) shape.color = [1, 0, 0, 1];
+              else shape.color = [0, 1, 0, 1];
+              if (result.source?.get(node) === node) shape.color = [1, 1, 1, 1];
+            },
+            (edge, step) => {
+              const shape = edge.meta?.shape;
+              if (!shape) return;
+
+              if (step === 0) {
+                shape.startColor = [1, 0, 0, 1];
+                shape.endColor = [1, 0, 0, 1];
+              } else {
+                shape.startColor = [0, 1, 0, 1];
+                shape.endColor = [0, 1, 0, 1];
+              }
+            }
+          );
         });
-      },
-    },
-  });
+      }
+    }
+  );
 }

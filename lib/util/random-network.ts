@@ -140,10 +140,12 @@ export function randomEdges(
 /**
  * This is a helpful method for generating a randomized network data object
  */
-export async function randomNetwork(
+export async function randomNetwork<TNodeMeta, TEdgeMeta>(
   words: string[],
   nodeCount: number,
-  edgeCount: number
+  edgeCount: number,
+  nodeMeta: (nodeRow: IRandomNode) => TNodeMeta,
+  edgeMeta: (edgeRow: IRandomEdge) => TEdgeMeta
 ) {
   const nodes = randomNodes(words, nodeCount);
   const edges = randomEdges(words, nodes, edgeCount);
@@ -154,11 +156,11 @@ export async function randomNetwork(
     nodeData: nodes,
 
     nodeId: (nodeRow) => nodeRow.UID || "",
-    nodeMeta: (nodeRow) => nodeRow,
+    nodeMeta: nodeMeta,
     nodeValues: (nodeRow) => nodeRow.numMetric,
 
     edgeId: (edgeRow) => edgeRow.UID || "",
-    edgeMeta: (edgeRow) => edgeRow,
+    edgeMeta: edgeMeta,
     edgeA: (edgeRow) => edgeRow.UID_A || "",
     edgeB: (edgeRow) => edgeRow.UID_B || "",
     edgeValues: (edgeRow) => ({ ab: edgeRow.numMetric, ba: edgeRow.numMetric }),
