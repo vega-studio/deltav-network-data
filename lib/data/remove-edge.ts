@@ -1,4 +1,4 @@
-import { IEdge, INetworkData } from "../types";
+import { IEdge, ProcessEdge, ProcessEdges, ProcessNetwork } from "../types";
 import { makeList } from "../util/make-list";
 import { removeFromMapOfMaps } from "../util/map-of-maps";
 
@@ -18,9 +18,9 @@ export interface IRemoveEdgeResult<TNodeMeta, TEdgeMeta> {
  * Specify removedEdges to prevent errors from being created across multiple edge removals.
  */
 export function removeEdge<TNodeMeta, TEdgeMeta>(
-  network: INetworkData<TNodeMeta, TEdgeMeta>,
-  edges: IEdge<TNodeMeta, TEdgeMeta> | IEdge<TNodeMeta, TEdgeMeta>[],
-  removedEdges?: Set<IEdge<TNodeMeta, TEdgeMeta>>
+  network: ProcessNetwork<TNodeMeta, TEdgeMeta>,
+  edges: ProcessEdges<TNodeMeta, TEdgeMeta>,
+  removedEdges?: Set<ProcessEdge<TNodeMeta, TEdgeMeta>>
 ) {
   // Ensure we are working with a list
   edges = makeList(edges);

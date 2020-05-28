@@ -261,3 +261,200 @@ export type ReversePathMap<TNodeMeta, TEdgeMeta> = Map<
   INode<TNodeMeta, TEdgeMeta>,
   INode<TNodeMeta, TEdgeMeta>
 >;
+
+/**
+ * A managed type is a useful type that mirrors a normal network data object BUT
+ * it's properties are locked as readonly. This is useful if you have a manager
+ * that handles the node data, but does not allow for the data to be manipulated
+ * outside the bounds of the managers methods.
+ */
+export interface IManagedEdge<TNodeMeta, TEdgeMeta>
+  extends IEdge<TNodeMeta, TEdgeMeta> {
+  /**
+   * A unique identifier for the edge. A number is preferred for performance and
+   * reduced RAM
+   */
+  readonly id: Identifier;
+  /** One of the nodes the edge connects */
+  readonly a: IManagedNode<TNodeMeta, TEdgeMeta>;
+  /** Another node the edge can connect */
+  readonly b: IManagedNode<TNodeMeta, TEdgeMeta>;
+  /** The value flowing from node a to node b */
+  readonly atob: Weights;
+  /** The value flowing from node b to node a */
+  readonly btoa: Weights;
+  /** Meta information that can be associated with the Edge */
+  readonly meta?: TEdgeMeta;
+}
+
+/**
+ * A managed type is a useful type that mirrors a normal network data object BUT
+ * it's properties are locked as readonly. This is useful if you have a manager
+ * that handles the node data, but does not allow for the data to be manipulated
+ * outside the bounds of the managers methods.
+ */
+export interface IManagedNode<TNodeMeta, TEdgeMeta>
+  extends INode<TNodeMeta, TEdgeMeta> {
+  /**
+   * A unique identifier for the node. A number is preferred for performance and
+   * reduced RAM
+   */
+  readonly id: Identifier;
+  /**
+   * The edges that connects this node to other nodes where edge.b === this node
+   */
+  readonly in: IManagedEdge<TNodeMeta, TEdgeMeta>[];
+  /** Meta information that can be associated with the Node */
+  readonly meta?: TNodeMeta;
+  /**
+   * The edges that connects this node to other nodes where edge.a === this node
+   */
+  readonly out: IManagedEdge<TNodeMeta, TEdgeMeta>[];
+  /** The values that this node harbors */
+  readonly value: Weights;
+}
+
+/**
+ * A managed type is a useful type that mirrors a normal network data object BUT
+ * it's properties are locked as readonly. This is useful if you have a manager
+ * that handles the node data, but does not allow for the data to be manipulated
+ * outside the bounds of the managers methods.
+ */
+export interface IManagedNetworkData<TNodeMeta, TEdgeMeta>
+  extends INetworkData<TNodeMeta, TEdgeMeta> {
+  /** The new node format created for all of the node information */
+  readonly nodes: IManagedNode<TNodeMeta, TEdgeMeta>[];
+  /** The lookup used to identify nodes by their identifier */
+  readonly nodeMap: Map<Identifier, IManagedNode<TNodeMeta, TEdgeMeta>>;
+  /** The new edge format created for all of the edge information */
+  readonly edges: IManagedEdge<TNodeMeta, TEdgeMeta>[];
+  /** The lookup used to identify edges by their identifier */
+  readonly edgeMap: Map<Identifier, IManagedEdge<TNodeMeta, TEdgeMeta>>;
+  /**
+   * This is a lookup to quickly find existing connections. This only maps
+   * unidirectionally where you always have to check a to b. Checking b to a
+   * would be considered undefined behavior for this list. We do not store btoa
+   * as it would be redundant and a waste of RAM. If you check nodeA to nodeB
+   * for a connection but do not find one, simply reverse the check with this
+   * look up nodeB to nodeA to see if the connection exists.
+   */
+  readonly atobMap: Map<
+    IManagedNode<TNodeMeta, TEdgeMeta>,
+    Map<IManagedNode<TNodeMeta, TEdgeMeta>, IManagedEdge<TNodeMeta, TEdgeMeta>>
+  >;
+}
+
+/**
+ * This represents an input type for operations that reads information about a
+ * network but does NOT mutate the network in any fashion.
+ */
+export type AnalyzeNetwork<TNodeMeta, TEdgeMeta> =
+  | INetworkData<TNodeMeta, TEdgeMeta>
+  | IManagedNetworkData<TNodeMeta, TEdgeMeta>;
+
+/**
+ * This represents an input type for operations that reads information about
+ * a network and WILL mutate the network.
+ */
+export type ProcessNetwork<TNodeMeta, TEdgeMeta> = INetworkData<
+  TNodeMeta,
+  TEdgeMeta
+>;
+
+/**
+ * This represents an input type for operations that reads information about
+ * nodes but does not mutate the network in any fashion.
+ */
+export type AnalyzeNodes<TNodeMeta, TEdgeMeta> =
+  | INode<TNodeMeta, TEdgeMeta>
+  | INode<TNodeMeta, TEdgeMeta>[]
+  | IManagedNode<TNodeMeta, TEdgeMeta>
+  | IManagedNode<TNodeMeta, TEdgeMeta>[];
+
+/**
+ * This represents an input type for operations that reads information about
+ * nodes but does not mutate the network in any fashion.
+ */
+export type AnalyzeNodeList<TNodeMeta, TEdgeMeta> =
+  | INode<TNodeMeta, TEdgeMeta>[]
+  | IManagedNode<TNodeMeta, TEdgeMeta>[];
+
+/**
+ * This represents an input type for operations that reads information about
+ * nodes but does not mutate the network in any fashion.
+ */
+export type AnalyzeNode<TNodeMeta, TEdgeMeta> =
+  | INode<TNodeMeta, TEdgeMeta>
+  | IManagedNode<TNodeMeta, TEdgeMeta>;
+
+/**
+ * This represents an input type for operations that reads information about
+ * nodes and WILL mutate the network.
+ */
+export type ProcessNodes<TNodeMeta, TEdgeMeta> =
+  | INode<TNodeMeta, TEdgeMeta>
+  | INode<TNodeMeta, TEdgeMeta>[];
+
+/**
+ * This represents an input type for operations that reads information about
+ * nodes and WILL mutate the network.
+ */
+export type ProcessNodeList<TNodeMeta, TEdgeMeta> = INode<
+  TNodeMeta,
+  TEdgeMeta
+>[];
+
+/**
+ * This represents an input type for operations that reads information about
+ * nodes and WILL mutate the network.
+ */
+export type ProcessNode<TNodeMeta, TEdgeMeta> = INode<TNodeMeta, TEdgeMeta>;
+
+/**
+ * This represents an input type for operations that reads information about
+ * edges but does not mutate the network in any fashion.
+ */
+export type AnalyzeEdges<TNodeMeta, TEdgeMeta> =
+  | IEdge<TNodeMeta, TEdgeMeta>
+  | IEdge<TNodeMeta, TEdgeMeta>[]
+  | IManagedEdge<TNodeMeta, TEdgeMeta>
+  | IManagedEdge<TNodeMeta, TEdgeMeta>[];
+
+/**
+ * This represents an input type for operations that reads information about
+ * edges but does not mutate the network in any fashion.
+ */
+export type AnalyzeEdgeList<TNodeMeta, TEdgeMeta> =
+  | IEdge<TNodeMeta, TEdgeMeta>[]
+  | IManagedEdge<TNodeMeta, TEdgeMeta>[];
+
+/**
+ * This represents an input type for operations that reads information about
+ * edges but does not mutate the network in any fashion.
+ */
+export type AnalyzeEdge<TNodeMeta, TEdgeMeta> =
+  | IEdge<TNodeMeta, TEdgeMeta>
+  | IManagedEdge<TNodeMeta, TEdgeMeta>;
+
+/**
+ * This represents an input type for operations that reads information about
+ * edges and WILL mutate the network.
+ */
+export type ProcessEdges<TNodeMeta, TEdgeMeta> =
+  | IEdge<TNodeMeta, TEdgeMeta>
+  | IEdge<TNodeMeta, TEdgeMeta>[];
+
+/**
+ * This represents an input type for operations that reads information about
+ * edges and WILL mutate the network.
+ */
+export type ProcessEdgeList<TNodeMeta, TEdgeMeta> = IEdge<
+  TNodeMeta,
+  TEdgeMeta
+>[];
+
+/**
+ * This represents an input type for operations that reads information about
+ * edges and WILL mutate the network.
+ */
+export type ProcessEdge<TNodeMeta, TEdgeMeta> = IEdge<TNodeMeta, TEdgeMeta>;

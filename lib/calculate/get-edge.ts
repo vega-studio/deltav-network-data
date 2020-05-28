@@ -1,4 +1,4 @@
-import { IEdge, INetworkData, INode } from "../types";
+import { AnalyzeNetwork, AnalyzeNode, IEdge } from "../types";
 import { getFromMapOfMaps } from "../util/map-of-maps";
 
 /**
@@ -12,9 +12,9 @@ import { getFromMapOfMaps } from "../util/map-of-maps";
  * of this method is undefined.
  */
 export function getEdge<TNodeMeta, TEdgeMeta>(
-  a: INode<TNodeMeta, TEdgeMeta>,
-  b: INode<TNodeMeta, TEdgeMeta>,
-  network?: INetworkData<TNodeMeta, TEdgeMeta>
+  a: AnalyzeNode<TNodeMeta, TEdgeMeta>,
+  b: AnalyzeNode<TNodeMeta, TEdgeMeta>,
+  network?: AnalyzeNetwork<TNodeMeta, TEdgeMeta>
 ): IEdge<TNodeMeta, TEdgeMeta> | undefined {
   // If the network is provided, do the super speedy lookup
   if (network) {

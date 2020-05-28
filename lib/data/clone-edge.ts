@@ -1,10 +1,10 @@
-import { Identifier, IEdge } from "../types";
+import { AnalyzeEdge, Identifier, IEdge } from "../types";
 
 /**
  * Makes a new edge with the same properties as the input. You can optionally make a new identifier for the clones element.
  */
 export function cloneEdge<TNodeMeta, TEdgeMeta>(
-  a: IEdge<TNodeMeta, TEdgeMeta>,
+  a: AnalyzeEdge<TNodeMeta, TEdgeMeta>,
   id?: Identifier
 ): IEdge<TNodeMeta, TEdgeMeta> {
   return {

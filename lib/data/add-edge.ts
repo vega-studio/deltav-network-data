@@ -1,4 +1,4 @@
-import { IEdge, INetworkData } from "../types";
+import { IEdge, ProcessEdge, ProcessEdges, ProcessNetwork } from "../types";
 import { makeList } from "../util/make-list";
 import { addToMapOfMaps } from "../util/map-of-maps";
 
@@ -30,10 +30,10 @@ export interface IAddEdgeResult<TNodeMeta, TEdgeMeta> {
  * @param edgeErrors Provides an output set to merge errors for edges into
  */
 export function addEdge<TNodeMeta, TEdgeMeta>(
-  network: INetworkData<TNodeMeta, TEdgeMeta>,
-  edges: IEdge<TNodeMeta, TEdgeMeta> | IEdge<TNodeMeta, TEdgeMeta>[],
-  addedEdges?: Set<IEdge<TNodeMeta, TEdgeMeta>>,
-  edgeErrors?: Set<IEdge<TNodeMeta, TEdgeMeta>>
+  network: ProcessNetwork<TNodeMeta, TEdgeMeta>,
+  edges: ProcessEdges<TNodeMeta, TEdgeMeta>,
+  addedEdges?: Set<ProcessEdge<TNodeMeta, TEdgeMeta>>,
+  edgeErrors?: Set<ProcessEdge<TNodeMeta, TEdgeMeta>>
 ): IAddEdgeResult<TNodeMeta, TEdgeMeta> {
   // Ensure we process a list
   edges = makeList(edges);

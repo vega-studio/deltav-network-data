@@ -1,7 +1,7 @@
-import { FlowDirection, IEdge, INode } from "../types";
+import { AnalyzeNode, FlowDirection, IEdge, INode } from "../types";
 export interface INeighborsOptions<TNodeMeta, TEdgeMeta> {
     /** This is a set of nodes to exclude from the result */
-    exclude?: Set<INode<TNodeMeta, TEdgeMeta>>;
+    exclude?: Set<AnalyzeNode<TNodeMeta, TEdgeMeta>>;
     /**
      * This specifies which direction of edge to consider for finding the
      * neighbors. If not specified this defaults to "BOTH" for the direction.
@@ -32,7 +32,7 @@ export interface INeighborsOptions<TNodeMeta, TEdgeMeta> {
      */
     includeEdgeForCircularReference?: boolean;
     /** This is the target node we want to collect the neighbors for. */
-    node: INode<TNodeMeta, TEdgeMeta>;
+    node: AnalyzeNode<TNodeMeta, TEdgeMeta>;
 }
 /**
  * This method gathers neighboring nodes of an input node. You can optionally

@@ -1,5 +1,14 @@
 import { getEdge } from "../calculate/get-edge";
-import { IEdge, INode, isEdge, isNode, ReversePathMap } from "../types";
+import {
+  AnalyzeEdge,
+  AnalyzeNode,
+  AnalyzeNodeList,
+  IEdge,
+  INode,
+  isEdge,
+  isNode,
+  ReversePathMap,
+} from "../types";
 import { travelPath } from "./travel-path";
 
 /**
@@ -13,8 +22,10 @@ import { travelPath } from "./travel-path";
  * and each path will increment the path feedback int he callbacks.
  */
 export function travelCollisionPath<TNodeMeta, TEdgeMeta>(
-  collision: INode<TNodeMeta, TEdgeMeta> | IEdge<TNodeMeta, TEdgeMeta>,
-  sources: INode<TNodeMeta, TEdgeMeta>[],
+  collision:
+    | AnalyzeNode<TNodeMeta, TEdgeMeta>
+    | AnalyzeEdge<TNodeMeta, TEdgeMeta>,
+  sources: AnalyzeNodeList<TNodeMeta, TEdgeMeta>,
   path: ReversePathMap<TNodeMeta, TEdgeMeta>,
   nodeResult: (
     node: INode<TNodeMeta, TEdgeMeta>,

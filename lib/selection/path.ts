@@ -1,5 +1,5 @@
 import { hasNode } from "../calculate/has-node";
-import { IEdge, INetworkData, INode } from "../types";
+import { AnalyzeNetwork, AnalyzeNode, IEdge, INode } from "../types";
 import { RippleSelect } from "./ripple-select";
 import { travelCollisionPath } from "./travel-collision-path";
 
@@ -24,9 +24,9 @@ export type PathResult<TNodeMeta, TEdgeMeta> = PathNode<TNodeMeta, TEdgeMeta>[];
  * search will be blocking until a result is achieved.
  */
 export async function path<TNodeMeta, TEdgeMeta>(
-  network: INetworkData<TNodeMeta, TEdgeMeta>,
-  a: INode<TNodeMeta, TEdgeMeta>,
-  b: INode<TNodeMeta, TEdgeMeta>,
+  network: AnalyzeNetwork<TNodeMeta, TEdgeMeta>,
+  a: AnalyzeNode<TNodeMeta, TEdgeMeta>,
+  b: AnalyzeNode<TNodeMeta, TEdgeMeta>,
   step?: () => Promise<void>
 ): Promise<PathResult<TNodeMeta, TEdgeMeta>[]> {
   // Ensure both nodes specified are within the network in question

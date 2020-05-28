@@ -1,4 +1,4 @@
-import { IEdge, INetworkData, INode } from "../types";
+import { AnalyzeNetwork, AnalyzeNode, IEdge, INode } from "../types";
 export declare type PathNode<TNodeMeta, TEdgeMeta> = [INode<TNodeMeta, TEdgeMeta>] | [INode<TNodeMeta, TEdgeMeta>, IEdge<TNodeMeta, TEdgeMeta>];
 export declare type PathResult<TNodeMeta, TEdgeMeta> = PathNode<TNodeMeta, TEdgeMeta>[];
 /**
@@ -16,4 +16,4 @@ export declare type PathResult<TNodeMeta, TEdgeMeta> = PathNode<TNodeMeta, TEdge
  * save on processing per frame. If you do not provide the stepper callback, the
  * search will be blocking until a result is achieved.
  */
-export declare function path<TNodeMeta, TEdgeMeta>(network: INetworkData<TNodeMeta, TEdgeMeta>, a: INode<TNodeMeta, TEdgeMeta>, b: INode<TNodeMeta, TEdgeMeta>, step?: () => Promise<void>): Promise<PathResult<TNodeMeta, TEdgeMeta>[]>;
+export declare function path<TNodeMeta, TEdgeMeta>(network: AnalyzeNetwork<TNodeMeta, TEdgeMeta>, a: AnalyzeNode<TNodeMeta, TEdgeMeta>, b: AnalyzeNode<TNodeMeta, TEdgeMeta>, step?: () => Promise<void>): Promise<PathResult<TNodeMeta, TEdgeMeta>[]>;

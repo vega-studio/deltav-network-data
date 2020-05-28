@@ -1,4 +1,4 @@
-import { INetworkData } from "../types";
+import { ProcessNetwork } from "../types";
 import { removeEdge } from "./remove-edge";
 
 /**
@@ -6,7 +6,7 @@ import { removeEdge } from "./remove-edge";
  * same node.
  */
 export function removeCircularEdges<TNodeMeta, TEdgeMeta>(
-  network: INetworkData<TNodeMeta, TEdgeMeta>
+  network: ProcessNetwork<TNodeMeta, TEdgeMeta>
 ) {
   const edges = network.edges.slice(0);
 

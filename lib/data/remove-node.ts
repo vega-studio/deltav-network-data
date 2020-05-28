@@ -1,4 +1,10 @@
-import { IEdge, INetworkData, INode } from "../types";
+import {
+  INode,
+  ProcessEdge,
+  ProcessNetwork,
+  ProcessNode,
+  ProcessNodes,
+} from "../types";
 import { makeList } from "../util/make-list";
 import { removeEdge } from "./remove-edge";
 
@@ -8,11 +14,11 @@ import { removeEdge } from "./remove-edge";
  */
 export interface IRemoveNodeResult<TNodeMeta, TEdgeMeta> {
   /** List of nodes removed during the operation */
-  nodes: Set<INode<TNodeMeta, TEdgeMeta>>;
+  nodes: Set<ProcessNode<TNodeMeta, TEdgeMeta>>;
   /** List of edges removed during the operation */
-  edges: Set<IEdge<TNodeMeta, TEdgeMeta>>;
+  edges: Set<ProcessEdge<TNodeMeta, TEdgeMeta>>;
   /** List of nodes that could not be removed during the operation */
-  errors: Set<INode<TNodeMeta, TEdgeMeta>> | null;
+  errors: Set<ProcessNode<TNodeMeta, TEdgeMeta>> | null;
 }
 
 /**
@@ -20,10 +26,10 @@ export interface IRemoveNodeResult<TNodeMeta, TEdgeMeta> {
  * other nodes.
  */
 export function removeNode<TNodeMeta, TEdgeMeta>(
-  network: INetworkData<TNodeMeta, TEdgeMeta>,
-  nodes: INode<TNodeMeta, TEdgeMeta> | INode<TNodeMeta, TEdgeMeta>[],
-  removedNodes?: Set<INode<TNodeMeta, TEdgeMeta>>,
-  removedEdges?: Set<IEdge<TNodeMeta, TEdgeMeta>>
+  network: ProcessNetwork<TNodeMeta, TEdgeMeta>,
+  nodes: ProcessNodes<TNodeMeta, TEdgeMeta>,
+  removedNodes?: Set<ProcessNode<TNodeMeta, TEdgeMeta>>,
+  removedEdges?: Set<ProcessEdge<TNodeMeta, TEdgeMeta>>
 ) {
   // Ensure this is a list
   nodes = makeList(nodes);

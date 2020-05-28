@@ -1,4 +1,4 @@
-import { INetworkData } from "../types";
+import { AnalyzeNetwork } from "../types";
 /**
  * This calculates the range of the weights on the nodes in a given data network
  *
@@ -8,4 +8,4 @@ import { INetworkData } from "../types";
  *                    If not provided, this will look across ALL weights in
  *                    every node to find the min and max.
  */
-export declare function nodeWeightRange<TNodeMeta, TEdgeMeta>(network: INetworkData<TNodeMeta, TEdgeMeta>, weightIndex?: number): [number, number];
+export declare function nodeWeightRange<TNodeMeta, TEdgeMeta>(network: AnalyzeNetwork<TNodeMeta, TEdgeMeta>, weightIndex?: number): [number, number];

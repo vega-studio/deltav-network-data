@@ -1,4 +1,4 @@
-import { IEdge, INetworkData, INode } from "../types";
+import { IEdge, INode, ProcessEdge, ProcessNetwork, ProcessNode, ProcessNodes } from "../types";
 /**
  * This contains the information to see which nodes were successfully added to the network as well as new edges
  */
@@ -25,4 +25,4 @@ export interface IAddNodeResult<TNodeMeta, TEdgeMeta> {
  * @param addedEdges A list of edges that have already been added. This is a context used during add operations to
  *                   prevent infinite loops and ensure an edge is only added once.
  */
-export declare function addNode<TNodeMeta, TEdgeMeta>(network: INetworkData<TNodeMeta, TEdgeMeta>, nodes: INode<TNodeMeta, TEdgeMeta> | INode<TNodeMeta, TEdgeMeta>[], addedNodes?: Set<INode<TNodeMeta, TEdgeMeta>>, addedEdges?: Set<IEdge<TNodeMeta, TEdgeMeta>>): IAddNodeResult<TNodeMeta, TEdgeMeta>;
+export declare function addNode<TNodeMeta, TEdgeMeta>(network: ProcessNetwork<TNodeMeta, TEdgeMeta>, nodes: ProcessNodes<TNodeMeta, TEdgeMeta>, addedNodes?: Set<ProcessNode<TNodeMeta, TEdgeMeta>>, addedEdges?: Set<ProcessEdge<TNodeMeta, TEdgeMeta>>): IAddNodeResult<TNodeMeta, TEdgeMeta>;

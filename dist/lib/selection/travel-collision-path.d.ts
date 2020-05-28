@@ -1,4 +1,4 @@
-import { IEdge, INode, ReversePathMap } from "../types";
+import { AnalyzeEdge, AnalyzeNode, AnalyzeNodeList, IEdge, INode, ReversePathMap } from "../types";
 /**
  * It's a special case when a collision occurs and you want to travel along it's
  * path. Essentially, when a collision happens, there are multiple paths that
@@ -9,4 +9,4 @@ import { IEdge, INode, ReversePathMap } from "../types";
  * The collision node will be included for each path traversed (when step === 0)
  * and each path will increment the path feedback int he callbacks.
  */
-export declare function travelCollisionPath<TNodeMeta, TEdgeMeta>(collision: INode<TNodeMeta, TEdgeMeta> | IEdge<TNodeMeta, TEdgeMeta>, sources: INode<TNodeMeta, TEdgeMeta>[], path: ReversePathMap<TNodeMeta, TEdgeMeta>, nodeResult: (node: INode<TNodeMeta, TEdgeMeta>, step: number, path: number) => void, edgeResult: (edge: IEdge<TNodeMeta, TEdgeMeta>, step: number, path: number) => void): void;
+export declare function travelCollisionPath<TNodeMeta, TEdgeMeta>(collision: AnalyzeNode<TNodeMeta, TEdgeMeta> | AnalyzeEdge<TNodeMeta, TEdgeMeta>, sources: AnalyzeNodeList<TNodeMeta, TEdgeMeta>, path: ReversePathMap<TNodeMeta, TEdgeMeta>, nodeResult: (node: INode<TNodeMeta, TEdgeMeta>, step: number, path: number) => void, edgeResult: (edge: IEdge<TNodeMeta, TEdgeMeta>, step: number, path: number) => void): void;

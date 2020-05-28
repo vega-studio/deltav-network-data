@@ -1,11 +1,11 @@
-import { INode } from "../types";
+import { AnalyzeNode } from "../types";
 
 /**
  * Examines a node and determines if it has a circular edge reference to itself
  * or not.
  */
 export function hasCircularEdge<TNodeMeta, TEdgeMeta>(
-  node: INode<TNodeMeta, TEdgeMeta>
+  node: AnalyzeNode<TNodeMeta, TEdgeMeta>
 ) {
   // Get the shortest list to loop through. Both in AND out listings will have
   // the same circular references if any exists

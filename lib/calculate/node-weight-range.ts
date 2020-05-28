@@ -1,4 +1,4 @@
-import { INetworkData } from "../types";
+import { AnalyzeNetwork } from "../types";
 import { maxWeight } from "./max-weight";
 import { minWeight } from "./min-weight";
 import { weightAtIndex } from "./weight-at-index";
@@ -13,7 +13,7 @@ import { weightAtIndex } from "./weight-at-index";
  *                    every node to find the min and max.
  */
 export function nodeWeightRange<TNodeMeta, TEdgeMeta>(
-  network: INetworkData<TNodeMeta, TEdgeMeta>,
+  network: AnalyzeNetwork<TNodeMeta, TEdgeMeta>,
   weightIndex?: number
 ): [number, number] {
   let nodeMin = Number.MAX_SAFE_INTEGER;

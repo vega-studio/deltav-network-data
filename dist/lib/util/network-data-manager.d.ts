@@ -2,7 +2,7 @@ import { addEdge } from "../data/add-edge";
 import { addNode } from "../data/add-node";
 import { removeEdge } from "../data/remove-edge";
 import { removeNode } from "../data/remove-node";
-import { IEdge, INetworkData, INode } from "../types";
+import { IEdge, IManagedNetworkData, INode, ProcessNetwork } from "../types";
 export interface INetworkDataManager<TNodeMeta, TEdgeMeta> {
     /**
      * The data object to monitor by this manager.
@@ -10,7 +10,7 @@ export interface INetworkDataManager<TNodeMeta, TEdgeMeta> {
      * NOTE: only operations carried out by this manager will produce valid
      * events. Mutating the network data without the manager can not be monitored.
      */
-    data: INetworkData<TNodeMeta, TEdgeMeta>;
+    data: ProcessNetwork<TNodeMeta, TEdgeMeta>;
     /**
      * If this is provided, the results will only propogate out after a small
      * delay so that way numerous operations can happen before event broadcasts
@@ -61,6 +61,10 @@ export declare class NetworkDataManager<TNodeMeta, TEdgeMeta> {
     /** This is the resolver function to make the finished promise resolve. */
     private resolve?;
     constructor(options: INetworkDataManager<TNodeMeta, TEdgeMeta>);
+    /**
+     * Get the data this manager manages, but only offer a readonly look into it.
+     */
+    get data(): IManagedNetworkData<TNodeMeta, TEdgeMeta>;
     /**
      * Add a node or several nodes to the network. The node can have edges
      * established within the node which will be validated for injection into the

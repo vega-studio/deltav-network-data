@@ -1,4 +1,4 @@
-import { IEdge, INetworkData, INode } from "../types";
+import { AnalyzeNetwork, AnalyzeNode, IEdge } from "../types";
 /**
  * This checks the network to see if a connection exists between two nodes. If
  * one does not exist, then this returns null.
@@ -9,4 +9,4 @@ import { IEdge, INetworkData, INode } from "../types";
  * The nodes MUST be a part of a VALID network data object. If not, the behavior
  * of this method is undefined.
  */
-export declare function getEdge<TNodeMeta, TEdgeMeta>(a: INode<TNodeMeta, TEdgeMeta>, b: INode<TNodeMeta, TEdgeMeta>, network?: INetworkData<TNodeMeta, TEdgeMeta>): IEdge<TNodeMeta, TEdgeMeta> | undefined;
+export declare function getEdge<TNodeMeta, TEdgeMeta>(a: AnalyzeNode<TNodeMeta, TEdgeMeta>, b: AnalyzeNode<TNodeMeta, TEdgeMeta>, network?: AnalyzeNetwork<TNodeMeta, TEdgeMeta>): IEdge<TNodeMeta, TEdgeMeta> | undefined;

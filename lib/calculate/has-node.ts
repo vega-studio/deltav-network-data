@@ -1,4 +1,4 @@
-import { INetworkData, INode } from "../types";
+import { AnalyzeNetwork, AnalyzeNodes, INode } from "../types";
 import { makeList } from "../util/make-list";
 
 /**
@@ -6,8 +6,8 @@ import { makeList } from "../util/make-list";
  * in the network, this returns false. This performs the examination by node id.
  */
 export function hasNode<TNodeMeta, TEdgeMeta>(
-  network: INetworkData<TNodeMeta, TEdgeMeta>,
-  nodes: INode<TNodeMeta, TEdgeMeta> | INode<TNodeMeta, TEdgeMeta>[]
+  network: AnalyzeNetwork<TNodeMeta, TEdgeMeta>,
+  nodes: AnalyzeNodes<TNodeMeta, TEdgeMeta> | INode<TNodeMeta, TEdgeMeta>[]
 ) {
   // Ensure we are working with a list
   nodes = makeList(nodes);

@@ -1,4 +1,11 @@
-import { IEdge, INetworkData, INode } from "../types";
+import {
+  IEdge,
+  INode,
+  ProcessEdge,
+  ProcessNetwork,
+  ProcessNode,
+  ProcessNodes,
+} from "../types";
 import { makeList } from "../util/make-list";
 import { addEdge } from "./add-edge";
 
@@ -30,10 +37,10 @@ export interface IAddNodeResult<TNodeMeta, TEdgeMeta> {
  *                   prevent infinite loops and ensure an edge is only added once.
  */
 export function addNode<TNodeMeta, TEdgeMeta>(
-  network: INetworkData<TNodeMeta, TEdgeMeta>,
-  nodes: INode<TNodeMeta, TEdgeMeta> | INode<TNodeMeta, TEdgeMeta>[],
-  addedNodes?: Set<INode<TNodeMeta, TEdgeMeta>>,
-  addedEdges?: Set<IEdge<TNodeMeta, TEdgeMeta>>
+  network: ProcessNetwork<TNodeMeta, TEdgeMeta>,
+  nodes: ProcessNodes<TNodeMeta, TEdgeMeta>,
+  addedNodes?: Set<ProcessNode<TNodeMeta, TEdgeMeta>>,
+  addedEdges?: Set<ProcessEdge<TNodeMeta, TEdgeMeta>>
 ): IAddNodeResult<TNodeMeta, TEdgeMeta> {
   // Ensure we're working with a list
   nodes = makeList(nodes);

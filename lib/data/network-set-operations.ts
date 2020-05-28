@@ -1,5 +1,11 @@
 import { getEdge } from "../calculate";
-import { IEdge, INetworkData, INode } from "../types";
+import {
+  AnalyzeNetwork,
+  IEdge,
+  INetworkData,
+  INode,
+  ProcessNetwork,
+} from "../types";
 import { addToMapOfMaps } from "../util";
 import { cloneEdge } from "./clone-edge";
 import { cloneNode } from "./clone-node";
@@ -61,15 +67,16 @@ interface IIntersectMerge<TNodeMeta, TEdgeMeta>
  *                 completely new objects for selection.
  */
 export async function intersection<TNodeMeta, TEdgeMeta>(
-  a: INetworkData<TNodeMeta, TEdgeMeta>,
-  b: INetworkData<TNodeMeta, TEdgeMeta>,
+  a: AnalyzeNetwork<TNodeMeta, TEdgeMeta>,
+  b: AnalyzeNetwork<TNodeMeta, TEdgeMeta>,
   strategy:
     | IIntersectUse<TNodeMeta, TEdgeMeta>
     | IIntersectMerge<TNodeMeta, TEdgeMeta>
-): Promise<INetworkData<TNodeMeta, TEdgeMeta> | null> {
+): Promise<ProcessNetwork<TNodeMeta, TEdgeMeta> | null> {
   // This will be the network object we aggregate our newly formed network data
   // into.
-  const network: INetworkData<TNodeMeta, TEdgeMeta> = emptyNetwork();
+  const network: AnalyzeNetwork<TNodeMeta, TEdgeMeta> = emptyNetwork();
+
   let pickNode: (
     nodeA: INode<TNodeMeta, TEdgeMeta>,
     nodeB: INode<TNodeMeta, TEdgeMeta>
@@ -175,10 +182,10 @@ export async function intersection<TNodeMeta, TEdgeMeta>(
  *                         edges how you see fit and return the merged edge.
  */
 export async function union<TNodeMeta, TEdgeMeta>(
-  a: INetworkData<TNodeMeta, TEdgeMeta>,
-  b: INetworkData<TNodeMeta, TEdgeMeta>,
+  a: AnalyzeNetwork<TNodeMeta, TEdgeMeta>,
+  b: AnalyzeNetwork<TNodeMeta, TEdgeMeta>,
   strategy: IIntersectUse<TNodeMeta, TEdgeMeta>
-): Promise<INetworkData<TNodeMeta, TEdgeMeta> | null> {
+): Promise<ProcessNetwork<TNodeMeta, TEdgeMeta> | null> {
   let allNodes = a.nodes.concat(b.nodes);
   let allEdges = a.edges.concat(b.edges);
   let aggregateMode: MakeNetworkAggregateValueMode;
@@ -246,8 +253,8 @@ export async function union<TNodeMeta, TEdgeMeta>(
  *                         edges how you see fit and return the merged edge.
  */
 export async function difference<TNodeMeta, TEdgeMeta>(
-  a: INetworkData<TNodeMeta, TEdgeMeta>,
-  b: INetworkData<TNodeMeta, TEdgeMeta>
+  a: AnalyzeNetwork<TNodeMeta, TEdgeMeta>,
+  b: AnalyzeNetwork<TNodeMeta, TEdgeMeta>
 ) {
   // This will be the network object we aggregate our newly formed network data
   // into.

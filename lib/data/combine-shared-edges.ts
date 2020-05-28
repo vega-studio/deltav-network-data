@@ -1,4 +1,4 @@
-import { ILockedEdge, INetworkData, INode } from "../types";
+import { ILockedEdge, INetworkData, INode, ProcessNetwork } from "../types";
 import { addToMapOfMaps, getFromMapOfMaps } from "../util/map-of-maps";
 import { addEdge } from "./add-edge";
 import { removeEdge } from "./remove-edge";
@@ -13,7 +13,7 @@ import { removeEdge } from "./remove-edge";
  * If you are positive your network edges are clean, then you can save some processing by not running this.
  */
 export function combineSharedEdges<TNodeMeta, TEdgeMeta>(
-  network: INetworkData<TNodeMeta, TEdgeMeta>,
+  network: ProcessNetwork<TNodeMeta, TEdgeMeta>,
   reduce: (
     edgeA: ILockedEdge<TNodeMeta, TEdgeMeta>,
     edgeB: ILockedEdge<TNodeMeta, TEdgeMeta>

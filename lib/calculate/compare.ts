@@ -1,5 +1,5 @@
 import { IdentifiableById } from "deltav";
-import { IEdge, INetworkData, INode, Weights } from "../types";
+import { AnalyzeEdge, AnalyzeNetwork, AnalyzeNode, Weights } from "../types";
 
 /**
  * This compares two lists of items that have an ID property
@@ -42,8 +42,8 @@ export function compareWeights(weightA: Weights, weightB: Weights) {
  * This compares two nodes to see if they have the same properties. Edge references are compared by id.
  */
 export function compareNodes<TNodeMeta, TEdgeMeta>(
-  nodeA: INode<TNodeMeta, TEdgeMeta>,
-  nodeB: INode<TNodeMeta, TEdgeMeta>
+  nodeA: AnalyzeNode<TNodeMeta, TEdgeMeta>,
+  nodeB: AnalyzeNode<TNodeMeta, TEdgeMeta>
 ) {
   return (
     nodeA.id === nodeB.id &&
@@ -58,8 +58,8 @@ export function compareNodes<TNodeMeta, TEdgeMeta>(
  * This compares two edges to see if they have the same properties. Node references are compared by id.
  */
 export function compareEdges<TNodeMeta, TEdgeMeta>(
-  edgeA: IEdge<TNodeMeta, TEdgeMeta>,
-  edgeB: IEdge<TNodeMeta, TEdgeMeta>
+  edgeA: AnalyzeEdge<TNodeMeta, TEdgeMeta>,
+  edgeB: AnalyzeEdge<TNodeMeta, TEdgeMeta>
 ) {
   return (
     edgeA.a.id === edgeB.a.id &&
@@ -75,8 +75,8 @@ export function compareEdges<TNodeMeta, TEdgeMeta>(
  * This compares two networks equivalence.
  */
 export function compareNetworks<TNodeMeta, TEdgeMeta>(
-  networkA: INetworkData<TNodeMeta, TEdgeMeta>,
-  networkB: INetworkData<TNodeMeta, TEdgeMeta>
+  networkA: AnalyzeNetwork<TNodeMeta, TEdgeMeta>,
+  networkB: AnalyzeNetwork<TNodeMeta, TEdgeMeta>
 ) {
   // Check for node equivalence
   if (networkA.nodes.length !== networkB.nodes.length) return false;

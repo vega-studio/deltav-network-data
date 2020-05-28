@@ -1,4 +1,4 @@
-import { FlowDirection, IEdge, INode, ReversePathMap } from "../types";
+import { AnalyzeNodes, FlowDirection, IEdge, INode, ReversePathMap } from "../types";
 /**
  * These are the options a result callback can respond with (the result callback
  * is the result property injected in the ISplashOptions). This response can
@@ -178,7 +178,7 @@ export interface ISplashOptions<TNodeMeta, TEdgeMeta> {
      * collecting all nodes and edges it encounters along the way in the fashion
      * the configuration specifies.
      */
-    startNodes: INode<TNodeMeta, TEdgeMeta> | INode<TNodeMeta, TEdgeMeta>[];
+    startNodes: AnalyzeNodes<TNodeMeta, TEdgeMeta>;
 }
 /**
  * This stores current state of the ripples created from a splash.

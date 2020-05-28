@@ -1,4 +1,4 @@
-import { IEdge, INetworkData, INode } from "../types";
+import { AnalyzeNetwork, IEdge, INetworkData, INode, ProcessNetwork } from "../types";
 export declare enum IntersectMode {
     USE_A = 0,
     USE_B = 1,
@@ -35,7 +35,7 @@ interface IIntersectMerge<TNodeMeta, TEdgeMeta> extends IIntersect<TNodeMeta, TE
  *                 objects to pick, as well as provide a way to create
  *                 completely new objects for selection.
  */
-export declare function intersection<TNodeMeta, TEdgeMeta>(a: INetworkData<TNodeMeta, TEdgeMeta>, b: INetworkData<TNodeMeta, TEdgeMeta>, strategy: IIntersectUse<TNodeMeta, TEdgeMeta> | IIntersectMerge<TNodeMeta, TEdgeMeta>): Promise<INetworkData<TNodeMeta, TEdgeMeta> | null>;
+export declare function intersection<TNodeMeta, TEdgeMeta>(a: AnalyzeNetwork<TNodeMeta, TEdgeMeta>, b: AnalyzeNetwork<TNodeMeta, TEdgeMeta>, strategy: IIntersectUse<TNodeMeta, TEdgeMeta> | IIntersectMerge<TNodeMeta, TEdgeMeta>): Promise<ProcessNetwork<TNodeMeta, TEdgeMeta> | null>;
 /**
  * This method will calculate the union of elements between two networks.
  *
@@ -55,7 +55,7 @@ export declare function intersection<TNodeMeta, TEdgeMeta>(a: INetworkData<TNode
  *                         intersections. You have the opportunity to merge the
  *                         edges how you see fit and return the merged edge.
  */
-export declare function union<TNodeMeta, TEdgeMeta>(a: INetworkData<TNodeMeta, TEdgeMeta>, b: INetworkData<TNodeMeta, TEdgeMeta>, strategy: IIntersectUse<TNodeMeta, TEdgeMeta>): Promise<INetworkData<TNodeMeta, TEdgeMeta> | null>;
+export declare function union<TNodeMeta, TEdgeMeta>(a: AnalyzeNetwork<TNodeMeta, TEdgeMeta>, b: AnalyzeNetwork<TNodeMeta, TEdgeMeta>, strategy: IIntersectUse<TNodeMeta, TEdgeMeta>): Promise<ProcessNetwork<TNodeMeta, TEdgeMeta> | null>;
 /**
  * This method will calculate the difference of elements between two networks.
  *
@@ -74,7 +74,7 @@ export declare function union<TNodeMeta, TEdgeMeta>(a: INetworkData<TNodeMeta, T
  *                         intersections. You have the opportunity to merge the
  *                         edges how you see fit and return the merged edge.
  */
-export declare function difference<TNodeMeta, TEdgeMeta>(a: INetworkData<TNodeMeta, TEdgeMeta>, b: INetworkData<TNodeMeta, TEdgeMeta>): Promise<INetworkData<TNodeMeta, TEdgeMeta>>;
+export declare function difference<TNodeMeta, TEdgeMeta>(a: AnalyzeNetwork<TNodeMeta, TEdgeMeta>, b: AnalyzeNetwork<TNodeMeta, TEdgeMeta>): Promise<INetworkData<TNodeMeta, TEdgeMeta>>;
 export declare const NetworkSet: {
     union: typeof union;
     intersection: typeof intersection;

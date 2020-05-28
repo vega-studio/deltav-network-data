@@ -1,4 +1,10 @@
-import { FlowDirection, IEdge, INode, ReversePathMap } from "../types";
+import {
+  AnalyzeNodes,
+  FlowDirection,
+  IEdge,
+  INode,
+  ReversePathMap,
+} from "../types";
 import { makeList } from "../util/make-list";
 import { neighbors } from "./neighbors";
 
@@ -194,7 +200,7 @@ export interface ISplashOptions<TNodeMeta, TEdgeMeta> {
    * collecting all nodes and edges it encounters along the way in the fashion
    * the configuration specifies.
    */
-  startNodes: INode<TNodeMeta, TEdgeMeta> | INode<TNodeMeta, TEdgeMeta>[];
+  startNodes: AnalyzeNodes<TNodeMeta, TEdgeMeta>;
 }
 
 /**
