@@ -33,12 +33,31 @@ export function removeEdge<TNodeMeta, TEdgeMeta>(
   for (let i = 0, iMax = edges.length; i < iMax; ++i) {
     // Get the next edge to process
     const edge = edges[i];
+    // Get the object we wish to delete to make sure the object specified exists
+    // within the network.
+    const toDelete = network.edgeMap.get(edge.id);
 
-    // If the edge is not within the provided network, this is a no-op. This also cleans the edge out of the network.
-    if (!network.edgeMap.delete(edge.id)) {
-      // If we couldn't delete the edge because it wasn't in the network, we check to see if it was already removed
+    // If we deleted the edge successfully, then we need to make sure the edge
+    // deleted actually is the SAME edge object we want to delete. Otherwise,
+    // that's an error where we deleted a edge with the same ID, but is NOT an
+    // object truly within the network.
+    if (toDelete) {
+      if (toDelete === edge) {
+        network.edgeMap.delete(edge.id);
+      } else {
+        errors.add(edge);
+        continue;
+      }
+    }
+
+    // If the edge is not within the network dataset, we error based on a bad
+    // edge identifier specified.
+    else {
+      // If we couldn't delete the edge because it wasn't in the network, we
+      // check to see if it was already removed
       if (!removedEdges.has(edge)) {
-        // If it wasn't removed, this means this edge just didn't exist at all in this network, thus is an error
+        // If it wasn't removed, this means this edge just didn't exist at all
+        // in this network, thus is an error
         errors.add(edge);
       }
 
@@ -55,6 +74,8 @@ export function removeEdge<TNodeMeta, TEdgeMeta>(
     if (edgeIndex > -1) network.edges.splice(edgeIndex, 1);
     // Clean out the atob mapping from the network
     removeFromMapOfMaps(network.atobMap, edge.a, edge.b);
+    // Add the edge to our list of edges that's been removed
+    removedEdges.add(edge);
   }
 
   return {

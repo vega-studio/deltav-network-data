@@ -3,7 +3,8 @@ import { makeList } from "../util/make-list";
 import { removeEdge } from "./remove-edge";
 
 /**
- * This contains the information to see which nodes were successfully removed from the network as well as edges
+ * This contains the information to see which nodes were successfully removed
+ * from the network as well as edges
  */
 export interface IRemoveNodeResult<TNodeMeta, TEdgeMeta> {
   /** List of nodes removed during the operation */
@@ -15,7 +16,8 @@ export interface IRemoveNodeResult<TNodeMeta, TEdgeMeta> {
 }
 
 /**
- * Removes a node from a network and cleans out the edges linking the node to other nodes.
+ * Removes a node from a network and cleans out the edges linking the node to
+ * other nodes.
  */
 export function removeNode<TNodeMeta, TEdgeMeta>(
   network: INetworkData<TNodeMeta, TEdgeMeta>,
@@ -36,12 +38,30 @@ export function removeNode<TNodeMeta, TEdgeMeta>(
   for (let k = 0, kMax = nodes.length; k < kMax; ++k) {
     // Get the node to process
     const node = nodes[k];
+    // See if the id of the node is valid for deletion
+    const toDelete = network.nodeMap.get(node.id);
 
-    // Make sure the node is in the network dataset. If it is, make sure it's removed from the lookup.
-    if (!network.nodeMap.delete(node.id)) {
-      // If we couldn't delete the node because it wasn't in the network, we check to see if it was already removed
+    // If we deleted the node successfully, then we need to make sure the node
+    // deleted actually is the SAME node object we want to delete. Otherwise,
+    // that's an error where we deleted a node with the same ID, but is NOT an
+    // object truly within the network.
+    if (toDelete) {
+      if (toDelete === node) {
+        network.nodeMap.delete(node.id);
+      } else {
+        errors.add(node);
+        continue;
+      }
+    }
+
+    // If the node is not within the network dataset, we error based on a bad
+    // node identifier specified.
+    else {
+      // If we couldn't delete the node because it wasn't in the network, we
+      // check to see if it was already removed
       if (!removedNodes.has(node)) {
-        // If it wasn't removed, this means this node just didn't exist at all in this network, thus is an error
+        // If it wasn't removed, this means this node just didn't exist at all
+        // in this network, thus is an error
         errors.add(node);
       }
 

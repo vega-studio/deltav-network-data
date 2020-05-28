@@ -1,0 +1,7 @@
+import { INode } from "../types";
+/**
+ * Produces a list of nodes and edges shared between the input nodes.
+ *
+ * The depth provided indicates maximum node jumps the node can be to be considered shared.
+ */
+export declare function sharedConnection<TNodeMeta, TEdgeMeta>(_nodes: INode<TNodeMeta, TEdgeMeta>): Promise<void>;

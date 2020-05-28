@@ -58,8 +58,12 @@ export function addEdge<TNodeMeta, TEdgeMeta>(
     }
 
     // If the network does not have the edge's a or b nodes, we can not add the
-    // edge in
-    if (!network.nodeMap.has(edge.a.id) || !network.nodeMap.has(edge.b.id)) {
+    // edge in. We also ensure we don't just have a match by id, but the
+    // references must be the SAME OBJECT.
+    const nodeA = network.nodeMap.get(edge.a.id);
+    const nodeB = network.nodeMap.get(edge.b.id);
+
+    if (nodeA !== edge.a || nodeB !== edge.b) {
       errors.add(edge);
       continue;
     }

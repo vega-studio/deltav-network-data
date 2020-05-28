@@ -3,6 +3,7 @@ import { describe, it } from "mocha";
 import {
   addEdge,
   addNode,
+  allEdges,
   cloneNetwork,
   getFromMapOfMaps,
   IEdge,
@@ -29,7 +30,13 @@ describe("Edit Network", () => {
   >;
 
   before(async () => {
-    network = await randomNetwork(WORDS, 100, 1000);
+    network = await randomNetwork(
+      WORDS,
+      100,
+      1000,
+      (n) => n,
+      (e) => e
+    );
   });
 
   it("Should not have errors", () => {
@@ -129,6 +136,25 @@ describe("Edit Network", () => {
     }
   });
 
+  it("Should NOT remove an edge with same ID but not same object", () => {
+    const net = cloneNetwork(network);
+    const edge = randItem(rand, network.edges);
+    const result = removeEdge(net, edge);
+
+    assert(result.errors && result.errors.size > 0);
+    assert(result.edges.size === 0);
+  });
+
+  it("Should NOT remove a node with same ID but not same object", () => {
+    const net = cloneNetwork(network);
+    const node = randItem(rand, network.nodes);
+    const result = removeNode(net, node);
+
+    assert(result.errors && result.errors.size > 0);
+    assert(result.nodes.size === 0);
+    assert(result.edges.size === 0);
+  });
+
   it("Should add a node", () => {
     const net = cloneNetwork(network);
     const metas = randomNodes(WORDS, 1);
@@ -181,6 +207,7 @@ describe("Edit Network", () => {
   it("Should remove node and add it back", () => {
     const net = cloneNetwork(network);
     const node = randItem(rand, net.nodes);
+    const nodeEdges = allEdges(node);
     removeNode(net, node);
 
     const result = addNode(net, node);
@@ -188,20 +215,19 @@ describe("Edit Network", () => {
     assert(!result.errors.nodes || result.errors.nodes.size <= 0);
     assert(!result.errors.edges || result.errors.edges.size <= 0);
     assert(result.nodes.size === 1);
-    assert(result.edges.size === 0);
+    assert(result.edges.size === nodeEdges.size);
 
     // Ensure the node is listed in the network properly
     assert(net.nodes.indexOf(node) >= 0);
     assert(net.nodeMap.has(node.id));
 
-    // Make sure the node does not exist within any edges
-    for (let k = 0, kMax = net.edges.length; k < kMax; ++k) {
-      const edge = net.edges[k];
-      assert(edge.a !== node && edge.b !== node);
-    }
+    // Ensure the edges for the node are added back to the network as well
+    nodeEdges.forEach((edge) => {
+      assert(net.edges.indexOf(edge) > -1);
+    });
   });
 
-  it("Should remove and edge and add it back", () => {
+  it("Should remove an edge and add it back", () => {
     const net = cloneNetwork(network);
     const edge = randItem(rand, net.edges);
     const resultRemove = removeEdge(net, edge);

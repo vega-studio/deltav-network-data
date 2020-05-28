@@ -33,6 +33,7 @@ export async function path<TNodeMeta, TEdgeMeta>(
   if (!hasNode(network, [a, b])) return [];
 
   const ripple = new RippleSelect();
+  const outPath = new Map<number, PathResult<TNodeMeta, TEdgeMeta>>();
 
   await ripple.splash(
     {
@@ -51,10 +52,10 @@ export async function path<TNodeMeta, TEdgeMeta>(
             collision,
             sources,
             path,
-            (_node) => {
+            (_node, _step, _path) => {
               // TODO
             },
-            (_edge) => {
+            (_edge, _step) => {
               // TODO
             }
           );
@@ -81,5 +82,5 @@ export async function path<TNodeMeta, TEdgeMeta>(
     }
   );
 
-  return [];
+  return Array.from(outPath.values());
 }

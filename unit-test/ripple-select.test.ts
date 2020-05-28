@@ -2,13 +2,10 @@ import assert from "assert";
 import { describe, it } from "mocha";
 import {
   emptyNetwork,
-  FlowDirection,
   IEdge,
   IMakeNetworkResult,
-  INode,
   IRandomEdge,
   IRandomNode,
-  neighbors,
   randomNetwork,
   RippleSelect,
 } from "../lib";
@@ -20,7 +17,7 @@ const network: Network = Object.assign(emptyNetwork<Meta, Meta>(), {
   errors: null,
 });
 
-describe("Z Ripple Search", () => {
+describe("Ripple Select", () => {
   before(async () => {
     const net = await randomNetwork(
       WORDS,
