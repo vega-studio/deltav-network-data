@@ -4,6 +4,24 @@ import { removeEdge } from "../data/remove-edge";
 import { removeNode } from "../data/remove-node";
 import { IEdge, IManagedNetworkData, INode, ProcessNetwork } from "../types";
 
+/**
+ * A listener that can respond to mutations the manager has queued.
+ */
+export interface INetworkDataManagerListener<TNodeMeta, TEdgeMeta> {
+  /** Add edges callback */
+  onAddEdges?(edges: Set<IEdge<TNodeMeta, TEdgeMeta>>): void;
+  /** Add nodes callback */
+  onAddNodes?(nodes: Set<INode<TNodeMeta, TEdgeMeta>>): void;
+  /** Operation errors for edges */
+  onEdgeErrors?(edges: Set<IEdge<TNodeMeta, TEdgeMeta>>): void;
+  /** Operation errors for nodes */
+  onNodeErrors?(nodes: Set<INode<TNodeMeta, TEdgeMeta>>): void;
+  /** Remove edges callback */
+  onRemoveEdges?(edges: Set<IEdge<TNodeMeta, TEdgeMeta>>): void;
+  /** Remove nodes callback */
+  onRemoveNodes?(nodes: Set<INode<TNodeMeta, TEdgeMeta>>): void;
+}
+
 export interface INetworkDataManager<TNodeMeta, TEdgeMeta> {
   /**
    * The data object to monitor by this manager.
@@ -25,19 +43,8 @@ export interface INetworkDataManager<TNodeMeta, TEdgeMeta> {
    * no broadcast event for the node itself.
    */
   debounce?: number;
-
-  /** Add edges callback */
-  onAddEdges?(edges: Set<IEdge<TNodeMeta, TEdgeMeta>>): void;
-  /** Add nodes callback */
-  onAddNodes?(nodes: Set<INode<TNodeMeta, TEdgeMeta>>): void;
-  /** Operation errors for edges */
-  onEdgeErrors?(edges: Set<IEdge<TNodeMeta, TEdgeMeta>>): void;
-  /** Operation errors for nodes */
-  onNodeErrors?(nodes: Set<INode<TNodeMeta, TEdgeMeta>>): void;
-  /** Remove edges callback */
-  onRemoveEdges?(edges: Set<IEdge<TNodeMeta, TEdgeMeta>>): void;
-  /** Remove nodes callback */
-  onRemoveNodes?(nodes: Set<INode<TNodeMeta, TEdgeMeta>>): void;
+  /** A listener to apply to the manager immediately */
+  listener?: INetworkDataManagerListener<TNodeMeta, TEdgeMeta>;
 }
 
 /**
@@ -55,6 +62,7 @@ export class NetworkDataManager<TNodeMeta, TEdgeMeta> {
   private edgeRemovals = new Set<IEdge<TNodeMeta, TEdgeMeta>>();
   private edgeErrors = new Set<IEdge<TNodeMeta, TEdgeMeta>>();
   private timerId: NodeJS.Timeout;
+  private listeners = new Set<INetworkDataManagerListener<TNodeMeta, TEdgeMeta>>();
 
   /**
    * This promise is resolved when all changes have been broadcasted. This is
@@ -67,6 +75,7 @@ export class NetworkDataManager<TNodeMeta, TEdgeMeta> {
 
   constructor(options: INetworkDataManager<TNodeMeta, TEdgeMeta>) {
     this.options = options;
+    if (options.listener) this.addListener(options.listener);
   }
 
   /**
@@ -74,6 +83,20 @@ export class NetworkDataManager<TNodeMeta, TEdgeMeta> {
    */
   get data(): IManagedNetworkData<TNodeMeta, TEdgeMeta> {
     return this.options.data;
+  }
+
+  /**
+   * Adds a listener that will begin to monitor changes to the network data.
+   */
+  addListener(listener: INetworkDataManagerListener<TNodeMeta, TEdgeMeta>) {
+    this.listeners.add(listener);
+  }
+
+  /**
+   * Removes a listener from this manager so it will no longer receive events.
+   */
+  removeListener(listener: INetworkDataManagerListener<TNodeMeta, TEdgeMeta>) {
+    this.listeners.delete(listener);
   }
 
   /**
@@ -256,12 +279,6 @@ export class NetworkDataManager<TNodeMeta, TEdgeMeta> {
   flush(force?: boolean) {
     const {
       debounce,
-      onRemoveEdges,
-      onRemoveNodes,
-      onEdgeErrors,
-      onNodeErrors,
-      onAddEdges,
-      onAddNodes,
     } = this.options;
 
     // When debounce is in effect, we make sure we don't broadcast unless the
@@ -276,26 +293,39 @@ export class NetworkDataManager<TNodeMeta, TEdgeMeta> {
     } else {
       // Ensure the timer waiting to fire never does as we're fully flushed now
       clearTimeout(this.timerId);
-      // Broadcast failed element operations
-      if (this.edgeErrors.size > 0) onEdgeErrors?.(this.edgeErrors);
-      this.edgeErrors.clear();
-      if (this.nodeErrors.size > 0) onNodeErrors?.(this.nodeErrors);
-      this.nodeErrors.clear();
-      // Broadcast removals first so responders can first free up resources
-      // before piling on more. These are broadcast in reverse order to the add
-      // nodes first rule, so they can be destructed in an appropriate manner.
-      // It is often required to break all links before an object can be cleanly
-      // discarded.
-      if (this.edgeRemovals.size > 0) onRemoveEdges?.(this.edgeRemovals);
-      this.edgeRemovals.clear();
-      if (this.nodeRemovals.size > 0) onRemoveNodes?.(this.nodeRemovals);
-      this.nodeRemovals.clear();
-      // Now broadcast the add events. Nodes must be added first then edges, so
-      // we will broadcast in that appropriate order
-      if (this.nodeAdds.size > 0) onAddNodes?.(this.nodeAdds);
-      this.nodeAdds.clear();
-      if (this.edgeAdds.size > 0) onAddEdges?.(this.edgeAdds);
-      this.edgeAdds.clear();
+
+      // Broadcast to all listeners of this manager
+      this.listeners.forEach(listener => {
+        const {
+          onRemoveEdges,
+          onRemoveNodes,
+          onEdgeErrors,
+          onNodeErrors,
+          onAddEdges,
+          onAddNodes,
+        } = listener;
+
+        // Broadcast failed element operations
+        if (this.edgeErrors.size > 0) onEdgeErrors?.(this.edgeErrors);
+        this.edgeErrors.clear();
+        if (this.nodeErrors.size > 0) onNodeErrors?.(this.nodeErrors);
+        this.nodeErrors.clear();
+        // Broadcast removals first so responders can first free up resources
+        // before piling on more. These are broadcast in reverse order to the add
+        // nodes first rule, so they can be destructed in an appropriate manner.
+        // It is often required to break all links before an object can be cleanly
+        // discarded.
+        if (this.edgeRemovals.size > 0) onRemoveEdges?.(this.edgeRemovals);
+        this.edgeRemovals.clear();
+        if (this.nodeRemovals.size > 0) onRemoveNodes?.(this.nodeRemovals);
+        this.nodeRemovals.clear();
+        // Now broadcast the add events. Nodes must be added first then edges, so
+        // we will broadcast in that appropriate order
+        if (this.nodeAdds.size > 0) onAddNodes?.(this.nodeAdds);
+        this.nodeAdds.clear();
+        if (this.edgeAdds.size > 0) onAddEdges?.(this.edgeAdds);
+        this.edgeAdds.clear();
+      });
 
       // Make sure the finished Promise gets resolved.
       if (this.resolve) {

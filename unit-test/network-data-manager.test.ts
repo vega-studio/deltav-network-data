@@ -44,11 +44,13 @@ describe("Network Data Manager", () => {
 
     const manager = new NetworkDataManager({
       data: net,
-      onAddNodes: (nodes) => {
-        pass = nodes.size > 0;
-      },
-      onNodeErrors: () => {
-        passError = false;
+      listener: {
+        onAddNodes: (nodes) => {
+          pass = nodes.size > 0;
+        },
+        onNodeErrors: () => {
+          passError = false;
+        },
       },
     });
 
@@ -72,14 +74,16 @@ describe("Network Data Manager", () => {
 
     const manager = new NetworkDataManager({
       data: net,
-      onRemoveNodes: (nodes) => {
-        pass = nodes.size > 0;
-      },
-      onRemoveEdges: (edges) => {
-        passEdges = edges.size > 0;
-      },
-      onNodeErrors: () => {
-        passError = false;
+      listener: {
+        onRemoveNodes: (nodes) => {
+          pass = nodes.size > 0;
+        },
+        onRemoveEdges: (edges) => {
+          passEdges = edges.size > 0;
+        },
+        onNodeErrors: () => {
+          passError = false;
+        },
       },
     });
 
@@ -99,14 +103,16 @@ describe("Network Data Manager", () => {
 
     const manager = new NetworkDataManager({
       data: net,
-      onAddNodes: () => {
-        passNodes = false;
-      },
-      onAddEdges: (edges) => {
-        pass = edges.size > 0;
-      },
-      onEdgeErrors: () => {
-        passError = false;
+      listener: {
+        onAddNodes: () => {
+          passNodes = false;
+        },
+        onAddEdges: (edges) => {
+          pass = edges.size > 0;
+        },
+        onEdgeErrors: () => {
+          passError = false;
+        },
       },
     });
 
@@ -131,11 +137,13 @@ describe("Network Data Manager", () => {
 
     const manager = new NetworkDataManager({
       data: net,
-      onAddEdges: () => {
-        pass = false;
-      },
-      onEdgeErrors: (edges) => {
-        passError = edges.size === 1;
+      listener: {
+        onAddEdges: () => {
+          pass = false;
+        },
+        onEdgeErrors: (edges) => {
+          passError = edges.size === 1;
+        },
       },
     });
 
@@ -159,11 +167,13 @@ describe("Network Data Manager", () => {
 
     const manager = new NetworkDataManager({
       data: net,
-      onRemoveEdges: (edges) => {
-        pass = edges.size > 0;
-      },
-      onEdgeErrors: () => {
-        passError = false;
+      listener: {
+        onRemoveEdges: (edges) => {
+          pass = edges.size > 0;
+        },
+        onEdgeErrors: () => {
+          passError = false;
+        },
       },
     });
 
@@ -182,14 +192,16 @@ describe("Network Data Manager", () => {
 
     const manager = new NetworkDataManager({
       data: net,
-      onAddNodes: (nodes) => {
-        pass = nodes.size === 1;
-      },
-      onAddEdges: (edges) => {
-        passEdges = edges.size === 4;
-      },
-      onNodeErrors: () => {
-        passError = false;
+      listener: {
+        onAddNodes: (nodes) => {
+          pass = nodes.size === 1;
+        },
+        onAddEdges: (edges) => {
+          passEdges = edges.size === 4;
+        },
+        onNodeErrors: () => {
+          passError = false;
+        },
       },
     });
 
@@ -255,14 +267,16 @@ describe("Network Data Manager", () => {
     const manager = new NetworkDataManager({
       data: net,
       debounce: 1,
-      onAddNodes: (nodes) => {
-        pass = nodes.size === 3;
-      },
-      onAddEdges: () => {
-        passEdges = false;
-      },
-      onNodeErrors: () => {
-        passError = false;
+      listener: {
+        onAddNodes: (nodes) => {
+          pass = nodes.size === 3;
+        },
+        onAddEdges: () => {
+          passEdges = false;
+        },
+        onNodeErrors: () => {
+          passError = false;
+        },
       },
     });
 
@@ -304,14 +318,16 @@ describe("Network Data Manager", () => {
     const manager = new NetworkDataManager({
       data: net,
       debounce: 1,
-      onAddNodes: (nodes) => {
-        pass = nodes.size === 3;
-      },
-      onAddEdges: (edges) => {
-        passEdges = edges.size === 4;
-      },
-      onNodeErrors: () => {
-        passError = false;
+      listener: {
+        onAddNodes: (nodes) => {
+          pass = nodes.size === 3;
+        },
+        onAddEdges: (edges) => {
+          passEdges = edges.size === 4;
+        },
+        onNodeErrors: () => {
+          passError = false;
+        },
       },
     });
 
@@ -394,11 +410,13 @@ describe("Network Data Manager", () => {
     const manager = new NetworkDataManager({
       data: net,
       debounce: 1,
-      onAddNodes: () => {
-        pass = false;
-      },
-      onNodeErrors: () => {
-        passError = false;
+      listener: {
+        onAddNodes: () => {
+          pass = false;
+        },
+        onNodeErrors: () => {
+          passError = false;
+        },
       },
     });
 
@@ -427,11 +445,13 @@ describe("Network Data Manager", () => {
     const manager = new NetworkDataManager({
       data: net,
       debounce: 1,
-      onAddEdges: () => {
-        pass = false;
-      },
-      onEdgeErrors: () => {
-        passError = false;
+      listener: {
+        onAddEdges: () => {
+          pass = false;
+        },
+        onEdgeErrors: () => {
+          passError = false;
+        },
       },
     });
 
@@ -462,14 +482,16 @@ describe("Network Data Manager", () => {
     const manager = new NetworkDataManager({
       data: net,
       debounce: 1,
-      onAddNodes: (nodes) => {
-        pass = nodes.size === 2;
-      },
-      onAddEdges: (edges) => {
-        passEdges = edges.size === 1;
-      },
-      onNodeErrors: () => {
-        passError = false;
+      listener: {
+        onAddNodes: (nodes) => {
+          pass = nodes.size === 2;
+        },
+        onAddEdges: (edges) => {
+          passEdges = edges.size === 1;
+        },
+        onNodeErrors: () => {
+          passError = false;
+        },
       },
     });
 
