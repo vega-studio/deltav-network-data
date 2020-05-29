@@ -3,6 +3,23 @@ import { addNode } from "../data/add-node";
 import { removeEdge } from "../data/remove-edge";
 import { removeNode } from "../data/remove-node";
 import { IEdge, IManagedNetworkData, INode, ProcessNetwork } from "../types";
+/**
+ * A listener that can respond to mutations the manager has queued.
+ */
+export interface INetworkDataManagerListener<TNodeMeta, TEdgeMeta> {
+    /** Add edges callback */
+    onAddEdges?(edges: Set<IEdge<TNodeMeta, TEdgeMeta>>): void;
+    /** Add nodes callback */
+    onAddNodes?(nodes: Set<INode<TNodeMeta, TEdgeMeta>>): void;
+    /** Operation errors for edges */
+    onEdgeErrors?(edges: Set<IEdge<TNodeMeta, TEdgeMeta>>): void;
+    /** Operation errors for nodes */
+    onNodeErrors?(nodes: Set<INode<TNodeMeta, TEdgeMeta>>): void;
+    /** Remove edges callback */
+    onRemoveEdges?(edges: Set<IEdge<TNodeMeta, TEdgeMeta>>): void;
+    /** Remove nodes callback */
+    onRemoveNodes?(nodes: Set<INode<TNodeMeta, TEdgeMeta>>): void;
+}
 export interface INetworkDataManager<TNodeMeta, TEdgeMeta> {
     /**
      * The data object to monitor by this manager.
@@ -24,18 +41,8 @@ export interface INetworkDataManager<TNodeMeta, TEdgeMeta> {
      * no broadcast event for the node itself.
      */
     debounce?: number;
-    /** Add edges callback */
-    onAddEdges?(edges: Set<IEdge<TNodeMeta, TEdgeMeta>>): void;
-    /** Add nodes callback */
-    onAddNodes?(nodes: Set<INode<TNodeMeta, TEdgeMeta>>): void;
-    /** Operation errors for edges */
-    onEdgeErrors?(edges: Set<IEdge<TNodeMeta, TEdgeMeta>>): void;
-    /** Operation errors for nodes */
-    onNodeErrors?(nodes: Set<INode<TNodeMeta, TEdgeMeta>>): void;
-    /** Remove edges callback */
-    onRemoveEdges?(edges: Set<IEdge<TNodeMeta, TEdgeMeta>>): void;
-    /** Remove nodes callback */
-    onRemoveNodes?(nodes: Set<INode<TNodeMeta, TEdgeMeta>>): void;
+    /** A listener to apply to the manager immediately */
+    listener?: INetworkDataManagerListener<TNodeMeta, TEdgeMeta>;
 }
 /**
  * This is a helper manager that provides an event system for handling mutations
@@ -52,6 +59,7 @@ export declare class NetworkDataManager<TNodeMeta, TEdgeMeta> {
     private edgeRemovals;
     private edgeErrors;
     private timerId;
+    private listeners;
     /**
      * This promise is resolved when all changes have been broadcasted. This is
      * only not resolved when a debounce is specified, otherwise, after each
@@ -65,6 +73,14 @@ export declare class NetworkDataManager<TNodeMeta, TEdgeMeta> {
      * Get the data this manager manages, but only offer a readonly look into it.
      */
     get data(): IManagedNetworkData<TNodeMeta, TEdgeMeta>;
+    /**
+     * Adds a listener that will begin to monitor changes to the network data.
+     */
+    addListener(listener: INetworkDataManagerListener<TNodeMeta, TEdgeMeta>): void;
+    /**
+     * Removes a listener from this manager so it will no longer receive events.
+     */
+    removeListener(listener: INetworkDataManagerListener<TNodeMeta, TEdgeMeta>): void;
     /**
      * Add a node or several nodes to the network. The node can have edges
      * established within the node which will be validated for injection into the
