@@ -117,6 +117,22 @@ describe("Utilities", () => {
     assert(Array.isArray(makeList(null)));
     assert(Array.isArray(makeList([null])));
     assert(Array.isArray(makeList([null, null, null])));
+    assert(Array.isArray(makeList(new Set([1, 2, 3, 3, 5]))));
+    assert(Array.isArray(makeList(new Set([-2, 5, 5, 8, -8, 4]))));
+    assert(Array.isArray(makeList(new Set(["one", "one", "two", "three"]))));
+    assert(Array.isArray(makeList(new Set([undefined]))));
+    assert(Array.isArray(makeList(new Set([null]))));
+    assert(Array.isArray(makeList(new Set([undefined, undefined, undefined]))));
+    assert(Array.isArray(makeList(new Set(null))));
+    assert(Array.isArray(makeList(new Set(undefined))));
+    assert(Array.isArray(makeList(new Set([null, null, null]))));
+    assert(Array.isArray(makeList(new Set([{}, {}, {}]))));
+    assert(Array.isArray(makeList(new Set([{}]))));
+    assert(
+      Array.isArray(
+        makeList(new Set([undefined, null, -5, 5, 0, "one", "one", "two"]))
+      )
+    );
   });
 
   it("Should set a value in a map of maps", () => {
