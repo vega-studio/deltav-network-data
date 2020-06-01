@@ -46,6 +46,7 @@ describe("Calculate", () => {
   });
 
   it("Should be the min", () => {
+    debugger;
     assert(minWeight(weights) === -23);
   });
 
