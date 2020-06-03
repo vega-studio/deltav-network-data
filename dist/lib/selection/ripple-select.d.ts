@@ -185,7 +185,7 @@ export interface ISplashOptions<TNodeMeta, TEdgeMeta> {
  *
  * TODO OPTIMIZATION CONSIDERATIONS:
  * - A thought occurred to me that as ripples propagate out, there is no need
- *   to store ALL visited nodes in certain conditions
+ *   to store ALL visited nodes in certain conditions.
  */
 declare class Ripples<TNodeMeta, TEdgeMeta> {
     /** This indicates if the ripple is still propagating or not */
