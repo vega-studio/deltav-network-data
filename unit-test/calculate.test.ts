@@ -46,12 +46,12 @@ describe("Calculate", () => {
   });
 
   it("Should be the min", () => {
-    debugger;
     assert(minWeight(weights) === -23);
   });
 
   it("Should be the max", () => {
     assert(maxWeight(weights) === 222);
+    assert(maxWeight([]) === 0);
   });
 
   it("Should be the weight at the index", () => {
